@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude TPS Viewer</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.3.6/css/dataTables.dataTables.min.css">
+    <link href="https://cdn.datatables.net/columncontrol/1.2.0/css/columnControl.dataTables.min.css" rel="stylesheet">
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-3.3.0.min.js"></script>
+    <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
+    <script src="https://cdn.datatables.net/columncontrol/1.2.0/js/dataTables.columnControl.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Claude Tokens Per Second Viewer</h1>
+            <p class="subtitle">Visualize Claude Code session performance</p>
+        </header>
+
+        <section id="file-selection">
+            <button id="select-directory">Select Directory</button>
+            <input type="file" id="file-input" webkitdirectory directory multiple style="display:none">
+            <div id="status-bar" class="hidden">
+                <span id="status-text">Loading...</span>
+                <div id="progress-bar">
+                    <div id="progress-fill"></div>
+                </div>
+            </div>
+        </section>
+
+        <section id="dashboard" class="hidden">
+            <div class="summary-cards">
+                <div class="card">
+                    <h3>Total Sessions</h3>
+                    <p id="total-sessions">0</p>
+                </div>
+                <div class="card">
+                    <h3>Average TPS</h3>
+                    <p id="average-tps">0</p>
+                </div>
+                <div class="card">
+                    <h3>Average ITPS</h3>
+                    <p id="average-itps">0</p>
+                </div>
+                <div class="card">
+                    <h3>Average OTPS</h3>
+                    <p id="average-otps">0</p>
+                </div>
+                <div class="card">
+                    <h3>Total Input Tokens</h3>
+                    <p id="total-input-tokens">0</p>
+                </div>
+                <div class="card">
+                    <h3>Total Output Tokens</h3>
+                    <p id="total-output-tokens">0</p>
+                </div>
+                <div class="card">
+                    <h3>Total Tokens</h3>
+                    <p id="total-tokens">0</p>
+                </div>
+            </div>
+
+            <div class="chart-controls">
+                <div class="time-period-tabs">
+                    <button data-period="session" class="active">Per Session</button>
+                    <button data-period="hour">By Hour</button>
+                    <button data-period="dayOfWeek">By Day of Week</button>
+                    <button data-period="dayOfMonth">By Day of Month</button>
+                    <button data-period="month">By Month</button>
+                </div>
+
+                <div class="model-filter-chart">
+                    <label for="model-select-chart">Filter by model:</label>
+                    <select id="model-select-chart">
+                        <option value="all">All Models</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="charts-container">
+                <div id="tps-chart"></div>
+            </div>
+
+            <div class="model-stats-section">
+                <h2>Model Statistics</h2>
+                <div id="model-stats"></div>
+            </div>
+
+            <div class="sessions-list">
+                <div class="sessions-header">
+                    <h2>Sessions</h2>
+                    <div class="model-filter">
+                        <label for="model-select">Filter by model:</label>
+                        <select id="model-select">
+                            <option value="all">All Models</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="sessions-table"></div>
+            </div>
+        </section>
+
+        <section id="error-modal" class="modal hidden">
+            <div class="modal-content">
+                <h2>Error</h2>
+                <p id="error-message"></p>
+                <button id="close-error">Close</button>
+            </div>
+        </section>
+    </div>
+
+    <script src="js/dataProcessor.js"></script>
+    <script src="js/fileHandler.js"></script>
+    <script src="js/chartRenderer.js"></script>
+    <script src="js/uiController.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

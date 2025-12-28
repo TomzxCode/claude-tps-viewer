@@ -1,0 +1,549 @@
+:root {
+    --primary-color: #2c3e50;
+    --accent-color: #27ae60;
+    --bg-color: #ecf0f1;
+    --card-bg: #ffffff;
+    --text-color: #2c3e50;
+    --border-color: #bdc3c7;
+    --error-color: #e74c3c;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Center everything when no data is loaded */
+body:not(.data-loaded) .container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+body:not(.data-loaded) header {
+    margin-bottom: 0;
+}
+
+body:not(.data-loaded) #file-selection {
+    margin-top: 40px;
+}
+
+/* Header */
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+header h1 {
+    color: var(--primary-color);
+    margin: 0 0 10px 0;
+}
+
+.subtitle {
+    color: #7f8c8d;
+    margin: 0;
+}
+
+/* Hide subtitle when data is loaded */
+body.data-loaded .subtitle {
+    display: none;
+}
+
+/* Hide header when no data, show only centered content */
+body:not(.data-loaded) header {
+    text-align: center;
+}
+
+/* File Selection */
+#file-selection {
+    text-align: center;
+}
+
+#file-selection.hidden {
+    display: none;
+}
+
+#select-directory {
+    padding: 12px 30px;
+    font-size: 16px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#select-directory:hover {
+    background: #229954;
+}
+
+/* Status Bar */
+#status-bar {
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--card-bg);
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#status-text {
+    display: block;
+    margin-bottom: 10px;
+}
+
+#progress-bar {
+    width: 100%;
+    height: 8px;
+    background: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#progress-fill {
+    height: 100%;
+    background: var(--accent-color);
+    transition: width 0.3s;
+    width: 0%;
+}
+
+/* Dashboard */
+#dashboard {
+    margin-top: 30px;
+}
+
+/* Summary Cards */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.card h3 {
+    margin: 0 0 10px 0;
+    color: #7f8c8d;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card p {
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Chart Controls */
+.chart-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+/* Time Period Tabs */
+.time-period-tabs {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.time-period-tabs button {
+    padding: 10px 20px;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.time-period-tabs button:hover {
+    border-color: var(--accent-color);
+}
+
+.time-period-tabs button.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
+/* Charts */
+.charts-container {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 400px;
+}
+
+/* Model Filter for Chart */
+.model-filter-chart {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.model-filter-chart label {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.model-filter-chart select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.model-filter-chart select:hover {
+    border-color: var(--accent-color);
+}
+
+.model-filter-chart select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+#tps-chart {
+    width: 100%;
+    height: 400px;
+}
+
+/* Sessions List */
+.sessions-list {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sessions-list h2 {
+    margin: 0 0 15px 0;
+    color: var(--primary-color);
+}
+
+#sessions-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#sessions-table th,
+#sessions-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#sessions-table th {
+    background: #f8f9fa;
+    font-weight: 600;
+    color: var(--primary-color);
+}
+
+#sessions-table tr:hover {
+    background: #f8f9fa;
+}
+
+#sessions-table code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h2 {
+    margin: 0 0 15px 0;
+    color: var(--error-color);
+}
+
+.modal-content p {
+    margin: 0 0 20px 0;
+}
+
+.modal-content button {
+    padding: 10px 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background: #1a252f;
+}
+
+/* Utility */
+.hidden {
+    display: none !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .time-period-tabs {
+        flex-direction: column;
+    }
+
+    .time-period-tabs button {
+        width: 100%;
+    }
+
+    #tps-chart {
+        height: 300px;
+    }
+
+    #sessions-table {
+        font-size: 14px;
+    }
+
+    #sessions-table th,
+    #sessions-table td {
+        padding: 8px;
+    }
+
+    .model-stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sessions-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .model-filter {
+        width: 100%;
+    }
+
+    .model-filter select {
+        flex: 1;
+    }
+}
+
+/* DataTables Custom Styling */
+#sessions-datatable_wrapper {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+}
+
+#sessions-datatable thead th {
+    background: var(--primary-color) !important;
+    color: white !important;
+    font-weight: 600;
+    border-bottom: none !important;
+}
+
+#sessions-datatable tbody td {
+    padding: 12px !important;
+}
+
+#sessions-datatable tbody tr:hover {
+    background: #f8f9fa !important;
+}
+
+#sessions-datatable code {
+    background: #f4f4f4;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+    color: var(--text-color);
+}
+
+/* DataTables pagination */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+    background: var(--card-bg) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: var(--bg-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+    background: var(--accent-color) !important;
+    color: white !important;
+    border: 1px solid var(--accent-color) !important;
+}
+
+/* DataTables search input */
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin-left: 8px;
+}
+
+/* DataTables length selector */
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 0 8px;
+}
+
+/* DataTables info */
+.dataTables_wrapper .dataTables_info {
+    color: var(--text-color);
+}
+
+/* Model Statistics Section */
+.model-stats-section {
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.model-stats-section h2 {
+    margin: 0 0 20px 0;
+    color: var(--primary-color);
+}
+
+.model-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.model-stat-card {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 6px;
+    border-left: 4px solid var(--accent-color);
+}
+
+.model-stat-card h4 {
+    margin: 0 0 12px 0;
+    color: var(--primary-color);
+    font-size: 14px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.stat-row span {
+    color: #7f8c8d;
+}
+
+.stat-row strong {
+    color: var(--text-color);
+}
+
+.stat-row:last-child {
+    margin-bottom: 0;
+}
+
+/* Sessions Header with Model Filter */
+.sessions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.sessions-header h2 {
+    margin: 0;
+    color: var(--primary-color);
+}
+
+.model-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.model-filter label {
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+.model-filter select {
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.model-filter select:hover {
+    border-color: var(--accent-color);
+}
+
+.model-filter select:focus {
+    outline: none;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+
