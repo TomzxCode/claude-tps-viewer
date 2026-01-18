@@ -48,6 +48,12 @@ nav:
   - Usage Guide: usage.md
   - Architecture: architecture.md
   - Development: development.md
+  - Specifications:
+    - File Parsing: spec/file-parsing.md
+    - Data Processing: spec/data-processing.md
+    - File Selection: spec/file-selection.md
+    - Chart Visualization: spec/chart-visualization.md
+    - UI Controls: spec/ui-controls.md
 
 markdown_extensions:
   - pymdownx.highlight:
