@@ -325,9 +325,11 @@ function calculatePercentiles(values) {
  * Process multiple JSONL files
  * @param {Array<File>} files - Array of JSONL files
  * @param {Function} onProgress - Progress callback
+ * @param {CacheManager} cacheManager - Optional cache manager instance
  * @returns {Promise<Object>} Processed data
  */
-async function processFiles(files, onProgress) {
+async function processFiles(files, onProgress, cacheManager = null) {
+    const startTime = performance.now();
     const allTPSData = [];
     const sessions = [];
     let totalTokens = 0;
@@ -335,65 +337,112 @@ async function processFiles(files, onProgress) {
     let totalOutputTokens = 0;
     let filesProcessed = 0;
     let filesSkipped = 0;
+    let filesFromCache = 0;
+
+    // Initialize cache manager if provided
+    let cacheInitialized = false;
+    if (cacheManager) {
+        try {
+            await cacheManager.init();
+            cacheInitialized = true;
+        } catch (e) {
+            console.warn('[processFiles] Failed to initialize cache manager:', e.message);
+        }
+    }
 
     for (const file of files) {
         try {
-            const content = await file.text();
-            const messages = parseJSONL(content, file.name);
+            // Calculate file key and check cache
+            let fileKey = null;
+            let cachedData = null;
 
-            if (messages.length === 0) {
-                console.warn(`[processFiles] ${file.name}: No valid user/assistant messages found`);
-                filesSkipped++;
-                continue;
+            if (cacheInitialized) {
+                fileKey = calculateFileKey(file);
+                cachedData = await cacheManager.get(fileKey);
             }
 
-            const sessionId = file.name.replace('.jsonl', '');
-            const tpsData = calculateTPS(messages, sessionId);
+            let tpsData;
+            let sessionData;
 
-            if (tpsData.length === 0) {
-                console.warn(`[processFiles] ${file.name}: No valid TPS data calculated (no complete conversation turns)`);
-                filesSkipped++;
-                continue;
-            }
+            if (cachedData) {
+                // Use cached data
+                tpsData = cachedData.tpsData;
+                sessionData = cachedData.session;
+                filesFromCache++;
+                console.log(`[processFiles] ${file.name}: Using cached data`);
+            } else {
+                // Process file normally
+                const content = await file.text();
+                const messages = parseJSONL(content, file.name);
 
-            allTPSData.push(...tpsData);
+                if (messages.length === 0) {
+                    console.warn(`[processFiles] ${file.name}: No valid user/assistant messages found`);
+                    filesSkipped++;
+                    continue;
+                }
 
-            // Extract session info and models used
-            const sessionModels = new Set();
-            for (const turn of tpsData) {
-                if (turn.model) {
-                    sessionModels.add(turn.model);
+                const sessionId = file.name.replace('.jsonl', '');
+                tpsData = calculateTPS(messages, sessionId);
+
+                if (tpsData.length === 0) {
+                    console.warn(`[processFiles] ${file.name}: No valid TPS data calculated (no complete conversation turns)`);
+                    filesSkipped++;
+                    continue;
+                }
+
+                // Extract session info and models used
+                const sessionModels = new Set();
+                for (const turn of tpsData) {
+                    if (turn.model) {
+                        sessionModels.add(turn.model);
+                    }
+                }
+
+                const sessionTokens = tpsData.reduce((sum, d) => sum + d.totalTokens, 0);
+                const sessionInputTokens = tpsData.reduce((sum, d) => sum + d.inputTokens, 0);
+                const sessionOutputTokens = tpsData.reduce((sum, d) => sum + d.outputTokens, 0);
+                const sessionTPS = tpsData.length > 0
+                    ? tpsData.reduce((sum, d) => sum + d.tps, 0) / tpsData.length
+                    : 0;
+
+                sessionData = {
+                    id: file.name.replace('.jsonl', ''),
+                    filename: file.name,
+                    turnCount: tpsData.length,
+                    totalTokens: sessionTokens,
+                    inputTokens: sessionInputTokens,
+                    outputTokens: sessionOutputTokens,
+                    averageTPS: sessionTPS,
+                    averageITPS: tpsData.length > 0
+                        ? tpsData.reduce((sum, d) => sum + d.itps, 0) / tpsData.length
+                        : 0,
+                    averageOTPS: tpsData.length > 0
+                        ? tpsData.reduce((sum, d) => sum + d.otps, 0) / tpsData.length
+                        : 0,
+                    timestamp: messages[0]?.timestamp || new Date(),
+                    models: Array.from(sessionModels)
+                };
+
+                // Cache the processed data
+                if (cacheInitialized && fileKey) {
+                    try {
+                        await cacheManager.set(fileKey, file.name, {
+                            tpsData,
+                            session: sessionData
+                        });
+                    } catch (e) {
+                        console.warn(`[processFiles] ${file.name}: Failed to cache data:`, e.message);
+                    }
                 }
             }
 
-            const sessionTokens = tpsData.reduce((sum, d) => sum + d.totalTokens, 0);
-            const sessionInputTokens = tpsData.reduce((sum, d) => sum + d.inputTokens, 0);
-            const sessionOutputTokens = tpsData.reduce((sum, d) => sum + d.outputTokens, 0);
-            const sessionTPS = tpsData.length > 0
-                ? tpsData.reduce((sum, d) => sum + d.tps, 0) / tpsData.length
-                : 0;
+            allTPSData.push(...tpsData);
+            sessions.push(sessionData);
 
-            sessions.push({
-                id: file.name.replace('.jsonl', ''),
-                filename: file.name,
-                turnCount: tpsData.length,
-                totalTokens: sessionTokens,
-                inputTokens: sessionInputTokens,
-                outputTokens: sessionOutputTokens,
-                averageTPS: sessionTPS,
-                averageITPS: tpsData.length > 0
-                    ? tpsData.reduce((sum, d) => sum + d.itps, 0) / tpsData.length
-                    : 0,
-                averageOTPS: tpsData.length > 0
-                    ? tpsData.reduce((sum, d) => sum + d.otps, 0) / tpsData.length
-                    : 0,
-                timestamp: messages[0]?.timestamp || new Date(),
-                models: Array.from(sessionModels)
-            });
-
-            totalTokens += sessionTokens;
-            totalInputTokens += sessionInputTokens;
-            totalOutputTokens += sessionOutputTokens;
+            // Get session totals from sessionData (works for both cached and fresh)
+            totalTokens += sessionData.totalTokens;
+            totalInputTokens += sessionData.inputTokens;
+            totalOutputTokens += sessionData.outputTokens;
             filesProcessed++;
 
             if (onProgress) {
@@ -424,8 +473,11 @@ async function processFiles(files, onProgress) {
 
     const modelStats = aggregateByModel(allTPSData);
 
+    const elapsedMs = performance.now() - startTime;
+    const elapsedSeconds = (elapsedMs / 1000).toFixed(2);
+
     // Log summary
-    console.log(`[processFiles] Summary: ${filesProcessed} processed, ${filesSkipped} skipped, ${sessions.length} sessions created, ${allTPSData.length} total turns`);
+    console.log(`[processFiles] Completed in ${elapsedSeconds}s (${filesProcessed} processed, ${filesFromCache} from cache, ${filesSkipped} skipped, ${sessions.length} sessions, ${allTPSData.length} turns)`);
 
     return {
         sessions,
@@ -435,6 +487,7 @@ async function processFiles(files, onProgress) {
             filesScanned: files.length,
             filesProcessed,
             filesSkipped,
+            filesFromCache,
             totalSessions: sessions.length,
             totalTurns: allTPSData.length,
             totalTokens,

@@ -2,7 +2,8 @@
  * Handle directory selection using File System Access API
  */
 class FileHandler {
-    constructor() {
+    constructor(cacheManager = null) {
+        this.cacheManager = cacheManager;
         this.selectButton = document.getElementById('select-directory');
         this.fileSelection = document.getElementById('file-selection');
         this.statusBar = document.getElementById('status-bar');
@@ -125,7 +126,7 @@ class FileHandler {
             const data = await processFiles(files, (processed, total) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
-            });
+            }, this.cacheManager);
 
             console.log(`[FileHandler] Processing complete:`, data.summary);
 
