@@ -91,6 +91,9 @@ class UIController {
             this.summaryCards.totalTokens.textContent = this.currentData.summary.totalTokens.toLocaleString();
         }
 
+        // Update percentile cards
+        this.updatePercentileCards();
+
         // Render model stats
         this.renderModelStats();
 
@@ -102,6 +105,28 @@ class UIController {
 
         // Render sessions table
         this.renderSessionsTable();
+    }
+
+    updatePercentileCards() {
+        const updateCard = (prefix, percentiles) => {
+            for (const p of ['p50', 'p75', 'p95', 'pMax']) {
+                const elementId = p === 'pMax' ? `${prefix}-pmax` : `${prefix}-${p.toLowerCase()}`;
+                const element = document.getElementById(elementId);
+                if (element) {
+                    element.textContent = percentiles[p].toFixed(2);
+                }
+            }
+        };
+
+        if (this.currentData.summary.tpsPercentiles) {
+            updateCard('tps', this.currentData.summary.tpsPercentiles);
+        }
+        if (this.currentData.summary.itpsPercentiles) {
+            updateCard('itps', this.currentData.summary.itpsPercentiles);
+        }
+        if (this.currentData.summary.otpsPercentiles) {
+            updateCard('otps', this.currentData.summary.otpsPercentiles);
+        }
     }
 
     renderModelStats() {
@@ -118,13 +143,25 @@ class UIController {
                             <span>Avg TPS:</span>
                             <strong>${stat.averageTPS.toFixed(2)}</strong>
                         </div>
+                        <div class="stat-row percentile-row">
+                            <span>TPS p50/p75/p95/pMax:</span>
+                            <strong>${this.formatPercentiles(stat.tpsPercentiles)}</strong>
+                        </div>
                         <div class="stat-row">
                             <span>Avg ITPS:</span>
                             <strong>${stat.averageITPS.toFixed(2)}</strong>
                         </div>
+                        <div class="stat-row percentile-row">
+                            <span>ITPS p50/p75/p95/pMax:</span>
+                            <strong>${this.formatPercentiles(stat.itpsPercentiles)}</strong>
+                        </div>
                         <div class="stat-row">
                             <span>Avg OTPS:</span>
                             <strong>${stat.averageOTPS.toFixed(2)}</strong>
+                        </div>
+                        <div class="stat-row percentile-row">
+                            <span>OTPS p50/p75/p95/pMax:</span>
+                            <strong>${this.formatPercentiles(stat.otpsPercentiles)}</strong>
                         </div>
                         <div class="stat-row">
                             <span>Turns:</span>
@@ -150,6 +187,11 @@ class UIController {
                 `).join('')}
             </div>
         `;
+    }
+
+    formatPercentiles(percentiles) {
+        if (!percentiles) return 'N/A';
+        return `${percentiles.p50.toFixed(2)} / ${percentiles.p75.toFixed(2)} / ${percentiles.p95.toFixed(2)} / ${percentiles.pMax.toFixed(2)}`;
     }
 
     populateModelFilter() {

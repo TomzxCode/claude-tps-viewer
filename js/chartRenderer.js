@@ -38,11 +38,19 @@ class ChartRenderer {
                 itps: itpsValues[i],
                 otps: otpsValues[i],
                 count: counts[i],
-                tokens: tokens[i]
+                tokens: tokens[i],
+                tpsP50: d.tpsPercentiles?.p50,
+                tpsP75: d.tpsPercentiles?.p75,
+                tpsP95: d.tpsPercentiles?.p95,
+                tpsPMax: d.tpsPercentiles?.pMax
             })),
             hovertemplate: (
                 '%{x}<br>' +
                 'TPS: %{y:.2f}<br>' +
+                'TPS p50: %{customdata.tpsP50:.2f}<br>' +
+                'TPS p75: %{customdata.tpsP75:.2f}<br>' +
+                'TPS p95: %{customdata.tpsP95:.2f}<br>' +
+                'TPS pMax: %{customdata.tpsPMax:.2f}<br>' +
                 'ITPS: %{customdata.itps:.2f}<br>' +
                 'OTPS: %{customdata.otps:.2f}<br>' +
                 'Turns: %{customdata.count}<br>' +
@@ -63,9 +71,19 @@ class ChartRenderer {
                     width: 1
                 }
             },
+            customdata: aggregatedData.map(d => ({
+                itpsP50: d.itpsPercentiles?.p50,
+                itpsP75: d.itpsPercentiles?.p75,
+                itpsP95: d.itpsPercentiles?.p95,
+                itpsPMax: d.itpsPercentiles?.pMax
+            })),
             hovertemplate: (
                 '%{x}<br>' +
                 'ITPS: %{y:.2f}<br>' +
+                'ITPS p50: %{customdata.itpsP50:.2f}<br>' +
+                'ITPS p75: %{customdata.itpsP75:.2f}<br>' +
+                'ITPS p95: %{customdata.itpsP95:.2f}<br>' +
+                'ITPS pMax: %{customdata.itpsPMax:.2f}<br>' +
                 '<extra></extra>'
             )
         };
@@ -82,9 +100,19 @@ class ChartRenderer {
                     width: 1
                 }
             },
+            customdata: aggregatedData.map(d => ({
+                otpsP50: d.otpsPercentiles?.p50,
+                otpsP75: d.otpsPercentiles?.p75,
+                otpsP95: d.otpsPercentiles?.p95,
+                otpsPMax: d.otpsPercentiles?.pMax
+            })),
             hovertemplate: (
                 '%{x}<br>' +
                 'OTPS: %{y:.2f}<br>' +
+                'OTPS p50: %{customdata.otpsP50:.2f}<br>' +
+                'OTPS p75: %{customdata.otpsP75:.2f}<br>' +
+                'OTPS p95: %{customdata.otpsP95:.2f}<br>' +
+                'OTPS pMax: %{customdata.otpsPMax:.2f}<br>' +
                 '<extra></extra>'
             )
         };

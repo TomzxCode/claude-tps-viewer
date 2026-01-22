@@ -177,7 +177,10 @@ function aggregateByPeriod(tpsData, period) {
                 totalOTPS: 0,
                 count: 0,
                 totalTokens: 0,
-                sortKey: sortKey ?? key
+                sortKey: sortKey ?? key,
+                tpsValues: [],
+                itpsValues: [],
+                otpsValues: []
             };
         }
 
@@ -186,9 +189,12 @@ function aggregateByPeriod(tpsData, period) {
         aggregated[key].totalOTPS += data.otps;
         aggregated[key].count += 1;
         aggregated[key].totalTokens += data.totalTokens;
+        aggregated[key].tpsValues.push(data.tps);
+        aggregated[key].itpsValues.push(data.itps);
+        aggregated[key].otpsValues.push(data.otps);
     }
 
-    // Convert to array and calculate averages
+    // Convert to array and calculate averages and percentiles
     const result = Object.entries(aggregated)
         .map(([key, value]) => ({
             label: key,
@@ -197,7 +203,10 @@ function aggregateByPeriod(tpsData, period) {
             averageOTPS: value.totalOTPS / value.count,
             count: value.count,
             totalTokens: value.totalTokens,
-            sortKey: value.sortKey
+            sortKey: value.sortKey,
+            tpsPercentiles: calculatePercentiles(value.tpsValues),
+            itpsPercentiles: calculatePercentiles(value.itpsValues),
+            otpsPercentiles: calculatePercentiles(value.otpsValues)
         }));
 
     // Sort based on period
@@ -236,7 +245,10 @@ function aggregateByModel(tpsData) {
                 totalTokens: 0,
                 totalInputTokens: 0,
                 totalOutputTokens: 0,
-                totalDuration: 0
+                totalDuration: 0,
+                tpsValues: [],
+                itpsValues: [],
+                otpsValues: []
             });
         }
 
@@ -249,19 +261,56 @@ function aggregateByModel(tpsData) {
         stats.totalInputTokens += data.inputTokens;
         stats.totalOutputTokens += data.outputTokens;
         stats.totalDuration += data.durationSeconds;
+        stats.tpsValues.push(data.tps);
+        stats.itpsValues.push(data.itps);
+        stats.otpsValues.push(data.otps);
     }
 
-    return Array.from(modelMap.values()).map(stats => ({
-        model: stats.model,
-        averageTPS: stats.totalTPS / stats.count,
-        averageITPS: stats.totalITPS / stats.count,
-        averageOTPS: stats.totalOTPS / stats.count,
-        turnCount: stats.count,
-        totalTokens: stats.totalTokens,
-        totalInputTokens: stats.totalInputTokens,
-        totalOutputTokens: stats.totalOutputTokens,
-        totalDuration: stats.totalDuration
-    })).sort((a, b) => b.totalTokens - a.totalTokens);
+    return Array.from(modelMap.values()).map(stats => {
+        const tpsPercentiles = calculatePercentiles(stats.tpsValues);
+        const itpsPercentiles = calculatePercentiles(stats.itpsValues);
+        const otpsPercentiles = calculatePercentiles(stats.otpsValues);
+
+        return {
+            model: stats.model,
+            averageTPS: stats.totalTPS / stats.count,
+            averageITPS: stats.totalITPS / stats.count,
+            averageOTPS: stats.totalOTPS / stats.count,
+            turnCount: stats.count,
+            totalTokens: stats.totalTokens,
+            totalInputTokens: stats.totalInputTokens,
+            totalOutputTokens: stats.totalOutputTokens,
+            totalDuration: stats.totalDuration,
+            tpsPercentiles,
+            itpsPercentiles,
+            otpsPercentiles
+        };
+    }).sort((a, b) => b.totalTokens - a.totalTokens);
+}
+
+/**
+ * Calculate percentiles from an array of numbers
+ * @param {Array<number>} values - Array of numeric values
+ * @returns {Object} Object with p50, p75, p95, pMax
+ */
+function calculatePercentiles(values) {
+    if (values.length === 0) {
+        return { p50: 0, p75: 0, p95: 0, pMax: 0 };
+    }
+
+    const sorted = [...values].sort((a, b) => a - b);
+
+    const percentile = (p) => {
+        const index = Math.ceil((p / 100) * sorted.length) - 1;
+        return sorted[Math.max(0, Math.min(index, sorted.length - 1))];
+    };
+
+    return {
+        p50: percentile(50),
+        p75: percentile(75),
+        p95: percentile(95),
+        pMax: sorted[sorted.length - 1]
+    };
 }
 
 /**
@@ -348,6 +397,14 @@ async function processFiles(files, onProgress) {
         ? allTPSData.reduce((sum, d) => sum + d.otps, 0) / allTPSData.length
         : 0;
 
+    const tpsValues = allTPSData.map(d => d.tps);
+    const itpsValues = allTPSData.map(d => d.itps);
+    const otpsValues = allTPSData.map(d => d.otps);
+
+    const tpsPercentiles = calculatePercentiles(tpsValues);
+    const itpsPercentiles = calculatePercentiles(itpsValues);
+    const otpsPercentiles = calculatePercentiles(otpsValues);
+
     const modelStats = aggregateByModel(allTPSData);
 
     return {
@@ -363,6 +420,9 @@ async function processFiles(files, onProgress) {
             averageTPS,
             averageITPS,
             averageOTPS,
+            tpsPercentiles,
+            itpsPercentiles,
+            otpsPercentiles,
             models: modelStats.map(m => m.model)
         }
     };

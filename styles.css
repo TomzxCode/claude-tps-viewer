@@ -500,6 +500,46 @@ body:not(.data-loaded) header {
     margin-bottom: 0;
 }
 
+.stat-row.percentile-row {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 8px;
+}
+
+.stat-row.percentile-row span {
+    margin-bottom: 4px;
+}
+
+/* Percentile Cards */
+.percentile-card {
+    text-align: left;
+}
+
+.percentile-card h3 {
+    text-align: center;
+}
+
+.percentile-values {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.percentile-values div {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.percentile-values span {
+    color: #7f8c8d;
+}
+
+.percentile-values strong {
+    color: var(--primary-color);
+    font-size: 16px;
+}
+
 /* Sessions Header with Model Filter */
 .sessions-header {
     display: flex;
