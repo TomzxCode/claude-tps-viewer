@@ -57,12 +57,21 @@ class FileHandler {
         // Recursively scan directory for JSONL files
         await this.scanDirectory(dirHandle, files);
 
-        if (files.length === 0) {
-            this.showError('No JSONL files found in directory');
+        // Filter for UUID-named files
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jsonl$/i;
+        const validFiles = files.filter(f => uuidRegex.test(f.name));
+        const skippedCount = files.length - validFiles.length;
+
+        if (validFiles.length === 0) {
+            this.showError('No valid JSONL files found in directory (files must be named [uuid].jsonl)');
             return;
         }
 
-        await this.processFiles(files);
+        if (skippedCount > 0) {
+            console.warn(`[FileHandler] Skipped ${skippedCount} file(s) with non-UUID names`);
+        }
+
+        await this.processFiles(validFiles);
     }
 
     async scanDirectory(dirHandle, files) {
@@ -91,10 +100,25 @@ class FileHandler {
             return;
         }
 
-        this.processFiles(files);
+        // Filter for UUID-named files
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jsonl$/i;
+        const validFiles = files.filter(f => uuidRegex.test(f.name));
+        const skippedCount = files.length - validFiles.length;
+
+        if (validFiles.length === 0) {
+            this.showError('No valid JSONL files found (files must be named [uuid].jsonl)');
+            return;
+        }
+
+        if (skippedCount > 0) {
+            console.warn(`[FileHandler] Skipped ${skippedCount} file(s) with non-UUID names`);
+        }
+
+        this.processFiles(validFiles);
     }
 
     async processFiles(files) {
+        console.log(`[FileHandler] Starting to process ${files.length} file(s)`);
         this.showStatus(`Processing ${files.length} files...`, 0);
 
         try {
@@ -102,6 +126,8 @@ class FileHandler {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
             });
+
+            console.log(`[FileHandler] Processing complete:`, data.summary);
 
             this.hideStatus();
 

@@ -1,13 +1,17 @@
 /**
  * Parse JSONL file content
  * @param {string} content - Raw JSONL file content
+ * @param {string} filename - Filename for logging purposes
  * @returns {Array} Parsed message objects
  */
-function parseJSONL(content) {
+function parseJSONL(content, filename = '(unknown)') {
     const lines = content.trim().split('\n');
     const messages = [];
+    let lineNumber = 0;
+    const parseErrors = [];
 
     for (const line of lines) {
+        lineNumber++;
         try {
             const message = JSON.parse(line);
             // Only process user and assistant messages
@@ -23,8 +27,12 @@ function parseJSONL(content) {
                 });
             }
         } catch (e) {
-            console.warn('Failed to parse line:', line, e);
+            parseErrors.push({ lineNumber, line: line.substring(0, 100), error: e.message });
         }
+    }
+
+    if (parseErrors.length > 0) {
+        console.warn(`[parseJSONL] ${filename}: Failed to parse ${parseErrors.length} line(s):`, parseErrors);
     }
 
     return messages;
@@ -326,18 +334,27 @@ async function processFiles(files, onProgress) {
     let totalInputTokens = 0;
     let totalOutputTokens = 0;
     let filesProcessed = 0;
-
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    let filesSkipped = 0;
 
     for (const file of files) {
-        const fileBasename = file.name.replace('.jsonl', '');
-        if (!file.name.endsWith('.jsonl') || !uuidRegex.test(fileBasename)) continue;
-
         try {
             const content = await file.text();
-            const messages = parseJSONL(content);
+            const messages = parseJSONL(content, file.name);
+
+            if (messages.length === 0) {
+                console.warn(`[processFiles] ${file.name}: No valid user/assistant messages found`);
+                filesSkipped++;
+                continue;
+            }
+
             const sessionId = file.name.replace('.jsonl', '');
             const tpsData = calculateTPS(messages, sessionId);
+
+            if (tpsData.length === 0) {
+                console.warn(`[processFiles] ${file.name}: No valid TPS data calculated (no complete conversation turns)`);
+                filesSkipped++;
+                continue;
+            }
 
             allTPSData.push(...tpsData);
 
@@ -383,7 +400,7 @@ async function processFiles(files, onProgress) {
                 onProgress(filesProcessed, files.length);
             }
         } catch (e) {
-            console.error('Error processing file:', file.name, e);
+            console.error(`[processFiles] ${file.name}: ${e.name}: ${e.message}`);
         }
     }
 
@@ -407,11 +424,17 @@ async function processFiles(files, onProgress) {
 
     const modelStats = aggregateByModel(allTPSData);
 
+    // Log summary
+    console.log(`[processFiles] Summary: ${filesProcessed} processed, ${filesSkipped} skipped, ${sessions.length} sessions created, ${allTPSData.length} total turns`);
+
     return {
         sessions,
         allTPSData,
         modelStats,
         summary: {
+            filesScanned: files.length,
+            filesProcessed,
+            filesSkipped,
             totalSessions: sessions.length,
             totalTurns: allTPSData.length,
             totalTokens,
