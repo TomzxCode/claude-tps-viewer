@@ -33,9 +33,9 @@ Once processed, the dashboard displays with:
 | Metric | Description |
 |--------|-------------|
 | Total Sessions | Number of session files processed |
-| Average TPS | Mean tokens per second across all turns |
-| Average ITPS | Mean input tokens per second |
-| Average OTPS | Mean output tokens per second |
+| TPS Percentiles | p50, p75, p95, pMax for overall TPS |
+| ITPS Percentiles | p50, p75, p95, pMax for input TPS |
+| OTPS Percentiles | p50, p75, p95, pMax for output TPS |
 | Total Input Tokens | Sum of all input tokens |
 | Total Output Tokens | Sum of all output tokens |
 | Total Tokens | Combined token count |
@@ -46,6 +46,8 @@ Switch between different time aggregations:
 
 - **Per Session** - Individual session performance
 - **By Hour** - Performance by hour of day (0-23)
+- **By Date** - Performance by calendar date
+- **By Date & Hour** - Performance by date and hour combined
 - **By Day of Week** - Performance by weekday
 - **By Day of Month** - Performance by calendar day (1-31)
 - **By Month** - Performance by month/year
@@ -56,19 +58,20 @@ Filter charts and tables by specific Claude models using the dropdown selector.
 
 ### Charts
 
-The main chart displays TPS metrics over the selected time period:
+The main chart displays grouped bar charts for TPS metrics over the selected time period:
 
-- **Blue bars** - Total TPS
-- **Red line** - Input TPS
-- **Green line** - Output TPS
+- **Green bars** - Total TPS
+- **Blue bars** - Input TPS (ITPS)
+- **Purple bars** - Output TPS (OTPS)
 
-Hover over data points for detailed information.
+Hover over data points for detailed information including percentiles.
 
 ### Model Statistics
 
 Compare performance across different models:
 
 - Average TPS/ITPS/OTPS per model
+- Percentiles (p50/p75/p95/pMax) for each metric
 - Turn count per model
 - Total tokens processed per model
 
@@ -76,8 +79,8 @@ Compare performance across different models:
 
 Sortable, filterable table with per-session details:
 
-- Session ID (click to copy)
-- Date/time
+- Session ID (displayed as code element)
+- Date & Time (format: YYYY-MM-DD HH:MM:SS)
 - Number of turns
 - Token counts (input/output/total)
 - Average TPS/ITPS/OTPS
@@ -91,13 +94,33 @@ For each conversation turn (user message → assistant responses):
 
 ```
 Duration = Last assistant timestamp - User timestamp
-Total Tokens = Sum of all tokens in assistant responses
-TPS = Total Tokens / Duration
+Input Tokens = Sum of input_tokens in assistant responses
+Output Tokens = Sum of output_tokens in assistant responses
+TPS = (Input Tokens + Output Tokens) / Duration
+ITPS = Input Tokens / Duration
+OTPS = Output Tokens / Duration
 ```
+
+### Percentiles
+
+Percentiles are calculated from all turn TPS values:
+
+- **p50** - Median (50th percentile)
+- **p75** - 75th percentile
+- **p95** - 95th percentile
+- **pMax** - Maximum value
 
 ### Aggregation
 
-Time-based aggregations compute the mean TPS across all turns within the period.
+Time-based aggregations compute the mean TPS across all turns within the period, along with percentile distributions.
+
+## Caching
+
+The viewer uses IndexedDB to cache processed file results. Cache entries are keyed by `filename:size:lastModified`, so:
+
+- Reloading the same directory is nearly instant
+- Modified files are automatically reprocessed
+- Cache persists across browser sessions
 
 ## Browser Compatibility
 
@@ -107,4 +130,4 @@ Tested on modern browsers with ES6+ support:
 - Firefox 88+
 - Safari 14+
 
-Requires the File System Access API for directory selection.
+The File System Access API is used for directory selection in supported browsers. Other browsers fall back to traditional file input.

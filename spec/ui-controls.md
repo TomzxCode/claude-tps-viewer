@@ -2,7 +2,7 @@
 
 ## Overview
 
-The UI controls module is responsible for managing the application's user interface, including the dashboard, summary cards, model statistics, sessions table, time period filters, and model filter dropdowns.
+The UI controls module is responsible for managing the application's user interface, including the dashboard, summary cards, percentile cards, model statistics, sessions table, time period filters, and model filter dropdowns.
 
 ## Requirements
 
@@ -16,12 +16,22 @@ The UI controls module is responsible for managing the application's user interf
 
 * The module MUST display the following summary metrics:
   - Total Sessions
-  - Average TPS (2 decimal places)
-  - Average ITPS (2 decimal places)
-  - Average OTPS (2 decimal places)
   - Total Input Tokens (with locale formatting)
   - Total Output Tokens (with locale formatting)
   - Total Tokens (with locale formatting)
+
+### Percentile Cards
+
+* The module MUST display three separate percentile cards:
+  - TPS Percentiles card
+  - ITPS Percentiles card
+  - OTPS Percentiles card
+* Each percentile card MUST display the following values with 2 decimal places:
+  - p50
+  - p75
+  - p95
+  - pMax
+* Each percentile card MUST have the format: `<span>: <strong>value</strong>`
 
 ### Model Statistics
 
@@ -29,20 +39,26 @@ The UI controls module is responsible for managing the application's user interf
 * The module MUST display the following metrics per model:
   - Model name
   - Average TPS (2 decimal places)
+  - TPS percentiles (p50/p75/p95/pMax)
   - Average ITPS (2 decimal places)
+  - ITPS percentiles (p50/p75/p95/pMax)
   - Average OTPS (2 decimal places)
+  - OTPS percentiles (p50/p75/p95/pMax)
   - Turn count (with locale formatting)
   - Input tokens (with locale formatting)
   - Output tokens (with locale formatting)
   - Total tokens (with locale formatting)
   - Total duration (human-readable format)
 * The module MUST escape HTML in model names to prevent XSS
+* The module MUST format percentiles as "p50 / p75 / p95 / pMax" with 2 decimal places each
 
 ### Time Period Filters
 
 * The module MUST provide buttons for the following time periods:
   - Session
   - Hour
+  - Day
+  - Date & Hour
   - Day of Week
   - Day of Month
   - Month
@@ -63,7 +79,7 @@ The UI controls module is responsible for managing the application's user interf
 
 * The module MUST render a DataTable with the following columns:
   - Session ID (as code element)
-  - Date (locale date string)
+  - Date & Time (format: YYYY-MM-DD HH:MM:SS)
   - Turn count
   - Total tokens (with locale formatting)
   - Input tokens (with locale formatting)
@@ -95,12 +111,15 @@ The UI controls module is responsible for managing the application's user interf
 ### Summary Cards
 
 * `#total-sessions` - Total session count
-* `#average-tps` - Average TPS value
-* `#average-itps` - Average ITPS value
-* `#average-otps` - Average OTPS value
 * `#total-input-tokens` - Total input tokens
 * `#total-output-tokens` - Total output tokens
 * `#total-tokens` - Total tokens
+
+### Percentile Cards
+
+* `#tps-p50`, `#tps-p75`, `#tps-p95`, `#tps-pmax` - TPS percentile values
+* `#itps-p50`, `#itps-p75`, `#itps-p95`, `#itps-pmax` - ITPS percentile values
+* `#otps-p50`, `#otps-p75`, `#otps-p95`, `#otps-pmax` - OTPS percentile values
 
 ### Controls
 

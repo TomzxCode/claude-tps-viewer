@@ -2,7 +2,7 @@
 
 ## Overview
 
-The chart visualization module is responsible for rendering interactive charts using Plotly.js to display TPS metrics aggregated by various time periods or filtered by model.
+The chart visualization module is responsible for rendering interactive charts using Plotly.js to display TPS metrics aggregated by various time periods or filtered by model. Charts display grouped bar charts with percentile information in hover tooltips.
 
 ## Requirements
 
@@ -12,7 +12,7 @@ The chart visualization module is responsible for rendering interactive charts u
 * The module MUST use Plotly.js for chart rendering
 * The module MUST accept aggregated TPS data as input
 * The module MUST accept a period parameter to determine chart type
-* The module MUST support the following period types: `session`, `hour`, `dayOfWeek`, `dayOfMonth`, `month`
+* The module MUST support the following period types: `session`, `hour`, `day`, `dateHour`, `dayOfWeek`, `dayOfMonth`, `month`
 
 ### Chart Data
 
@@ -24,6 +24,9 @@ The chart visualization module is responsible for rendering interactive charts u
 * The module MUST include hover templates showing:
   - Label (x-axis value)
   - Metric value with 2 decimal places
+  - TPS percentiles: p50, p75, p95, pMax
+  - ITPS percentiles: p50, p75, p95, pMax
+  - OTPS percentiles: p50, p75, p95, pMax
   - Turn count
   - Total tokens
 
@@ -48,6 +51,8 @@ The chart visualization module is responsible for rendering interactive charts u
 * The module MUST display the following titles based on period:
   - `session`: "TPS/ITPS/OTPS Per Session"
   - `hour`: "TPS/ITPS/OTPS By Hour of Day"
+  - `day`: "TPS/ITPS/OTPS By Date"
+  - `dateHour`: "TPS/ITPS/OTPS By Date and Hour"
   - `dayOfWeek`: "TPS/ITPS/OTPS By Day of Week"
   - `dayOfMonth`: "TPS/ITPS/OTPS By Day of Month"
   - `month`: "TPS/ITPS/OTPS By Month"
@@ -57,6 +62,8 @@ The chart visualization module is responsible for rendering interactive charts u
 * The module MUST display the following x-axis titles based on period:
   - `session`: "Session"
   - `hour`: "Hour (0-23)"
+  - `day`: "Date"
+  - `dateHour`: "Date & Hour"
   - `dayOfWeek`: "Day"
   - `dayOfMonth`: "Day of Month"
   - `month`: "Month"

@@ -22,11 +22,13 @@ claude-tps-viewer/
 ├── app.js              # Application initialization
 ├── styles.css          # Styling
 ├── js/
-│   ├── dataProcessor.js    # Data pipeline
-│   ├── fileHandler.js      # File handling
-│   ├── chartRenderer.js    # Chart rendering
-│   └── uiController.js     # UI management
+│   ├── cacheManager.js      # IndexedDB caching
+│   ├── dataProcessor.js     # Data pipeline
+│   ├── fileHandler.js       # File handling
+│   ├── chartRenderer.js     # Chart rendering
+│   └── uiController.js      # UI management
 ├── docs/               # Documentation source
+├── spec/               # Specifications
 ├── mkdocs.yml          # MkDocs configuration
 ├── pyproject.toml      # Python dependencies (docs)
 └── uv.lock             # Locked dependencies
@@ -48,12 +50,27 @@ case 'quarter':
     break;
 ```
 
+3. Update `getChartTitle()` and `getXAxisTitle()` in `js/chartRenderer.js`
+
 ### Adding a New Metric
 
 1. Calculate in `calculateTurnTPS()` (dataProcessor.js)
 2. Add to aggregation functions
-3. Update chart traces in `renderChart()` (chartRenderer.js)
-4. Add summary card in `index.html`
+3. Calculate percentiles in `calculatePercentiles()`
+4. Update chart traces in `renderChart()` (chartRenderer.js)
+5. Add summary card in `index.html`
+
+### Working with Cache
+
+The cache is stored in IndexedDB under database `TPSViewerCache`:
+
+```javascript
+// Clear cache from browser console
+window.app.cacheManager.clear()
+
+// Get cache stats
+window.app.cacheManager.getStats()
+```
 
 ## Code Conventions
 
@@ -74,6 +91,8 @@ Manual testing checklist:
 - [ ] Test table sorting and filtering
 - [ ] Check error handling (invalid files)
 - [ ] Test across browsers
+- [ ] Verify caching works (reload same directory)
+- [ ] Verify cache invalidation (modify a file)
 
 ## Building Documentation
 
@@ -104,6 +123,18 @@ Output is in `site/`.
 
 - MkDocs
 - MkDocs Material theme
+
+## Browser Developer Tools
+
+For debugging, the application exposes modules via `window.app`:
+
+```javascript
+// Access modules
+window.app.cacheManager
+window.app.chartRenderer
+window.app.uiController
+window.app.fileHandler
+```
 
 ## License
 

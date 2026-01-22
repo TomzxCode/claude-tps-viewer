@@ -7,22 +7,25 @@ A web-based viewer for visualizing Claude Code session performance metrics. Anal
 - **Directory Selection**: Select a directory containing Claude Code session files (JSONL format) using the modern File System Access API (with fallback for other browsers)
 - **Performance Metrics**:
   - Total sessions and turns analyzed
-  - Average TPS, ITPS (input TPS), and OTPS (output TPS)
+  - TPS, ITPS (input TPS), and OTPS (output TPS) percentiles (p50, p75, p95, pMax)
   - Total input, output, and combined tokens
 - **Time-Based Analysis**: Grouped bar charts showing TPS/ITPS/OTPS by:
   - Per-session breakdown
   - By hour of day
+  - By date
+  - By date & hour
   - By day of week
   - By day of month
   - By month
 - **Model Statistics**: Per-model breakdowns including:
-  - Average TPS/ITPS/OTPS
+  - Average TPS/ITPS/OTPS with percentiles
   - Turn counts
   - Token usage (input/output/total)
   - Total duration
 - **Filtering**: Filter both charts and sessions table by model
-- **Sortable Data Table**: DataTables-powered table with columns for session ID, date, turns, tokens, TPS metrics, and models
+- **Sortable Data Table**: DataTables-powered table with columns for session ID, date & time, turns, tokens, TPS metrics, and models
 - **Progress Indicator**: Real-time progress bar during file processing
+- **Caching**: IndexedDB-based caching for faster reprocessing of unchanged files
 
 ## Usage
 
@@ -66,9 +69,10 @@ This is a static site with vanilla JavaScript. Key files:
 
 - `index.html` - Main page structure
 - `app.js` - Application initialization
-- `js/dataProcessor.js` - JSONL parsing and TPS/ITPS/OTPS calculation
+- `js/cacheManager.js` - IndexedDB caching for processed files
+- `js/dataProcessor.js` - JSONL parsing and TPS/ITPS/OTPS calculation with percentiles
 - `js/fileHandler.js` - File System Access API handling with fallback
-- `js/chartRenderer.js` - Plotly grouped bar chart rendering (TPS/ITPS/OTPS)
+- `js/chartRenderer.js` - Plotly grouped bar chart rendering (TPS/ITPS/OTPS with percentiles)
 - `js/uiController.js` - UI state management, DataTables initialization
 - `styles.css` - Styling
 

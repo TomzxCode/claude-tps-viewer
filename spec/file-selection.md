@@ -2,7 +2,7 @@
 
 ## Overview
 
-The file selection module is responsible for allowing users to select directories or files containing Claude Code session logs, using the File System Access API when available or falling back to traditional file input.
+The file selection module is responsible for allowing users to select directories or files containing Claude Code session logs, using the File System Access API when available or falling back to traditional file input. The module integrates with CacheManager for efficient reprocessing of unchanged files.
 
 ## Requirements
 
@@ -18,14 +18,18 @@ The file selection module is responsible for allowing users to select directorie
 * When using File System Access API, the module MUST recursively scan the selected directory for `.jsonl` files
 * The module MUST scan subdirectories recursively
 * The module MUST collect all `.jsonl` files into an array for processing
-* The module MUST display an error if no `.jsonl` files are found
+* The module MUST filter for UUID-named files using pattern: `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jsonl$/i`
+* The module MUST display an error if no valid JSONL files are found
+* The module SHOULD log a warning when skipping files with non-UUID names
 
 ### Fallback File Input
 
 * The module MUST provide a hidden file input element as fallback for browsers without File System Access API
 * The module MUST trigger the file input dialog when File System Access API is unavailable
 * The module MUST filter selected files to only include `.jsonl` files
-* The module MUST display an error if no `.jsonl` files are selected
+* The module MUST filter for UUID-named files using pattern: `/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jsonl$/i`
+* The module MUST display an error if no valid JSONL files are selected
+* The module SHOULD log a warning when skipping files with non-UUID names
 
 ### Progress Indication
 
@@ -47,6 +51,12 @@ The file selection module is responsible for allowing users to select directorie
 * The module MUST add a `data-loaded` class to the document body when data is loaded
 * The module MUST hide the file selection section when data is loaded
 
+### Caching Integration
+
+* The module MUST accept a CacheManager instance in its constructor
+* The module MUST pass the CacheManager to the data processing function
+* The module SHOULD log cache hits in the console
+
 ## User Interface
 
 ### Elements
@@ -64,3 +74,4 @@ The file selection module is responsible for allowing users to select directorie
 
 * File System Access API (optional, with fallback)
 * Custom event system (`window.dispatchEvent`, `CustomEvent`)
+* CacheManager (optional, for caching support)

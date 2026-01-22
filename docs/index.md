@@ -13,10 +13,12 @@ Claude TPS Viewer is a single-page web application that runs entirely in your br
 ## Features
 
 - **Directory Selection** - Select a folder containing Claude Code session files
-- **Time-Based Analysis** - View performance by hour, day of week, day of month, or month
-- **Model Statistics** - Compare performance across different Claude models
-- **Interactive Charts** - Plotly-powered visualizations
+- **Time-Based Analysis** - View performance by hour, date, date & hour, day of week, day of month, or month
+- **Percentile Metrics** - See p50, p75, p95, and pMax for TPS/ITPS/OTPS across all data
+- **Model Statistics** - Compare performance across different Claude models with per-model percentiles
+- **Interactive Charts** - Plotly-powered visualizations with percentile hover info
 - **Sortable Tables** - Filter sessions by model and sort by various metrics
+- **IndexedDB Caching** - Faster reloads for previously processed files
 - **No Backend Required** - All processing happens client-side
 
 ## Quick Start
