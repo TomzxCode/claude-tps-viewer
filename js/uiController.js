@@ -242,7 +242,7 @@ class UIController {
         // Build table data for DataTables
         const tableData = sessions.map(session => [
             `<code>${this.escapeHtml(session.id)}</code>`,
-            session.timestamp.toLocaleDateString(),
+            session.timestamp.toLocaleDateString('en-CA'),
             session.turnCount,
             session.totalTokens.toLocaleString(),
             session.inputTokens.toLocaleString(),

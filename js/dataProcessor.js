@@ -157,7 +157,7 @@ function aggregateByPeriod(tpsData, period) {
                 key = data.timestamp.getHours();
                 break;
             case 'day':
-                key = data.timestamp.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                key = data.timestamp.toLocaleDateString('en-CA');
                 sortKey = data.timestamp.getTime();
                 break;
             case 'dayOfWeek':
@@ -167,7 +167,7 @@ function aggregateByPeriod(tpsData, period) {
                 key = data.timestamp.getDate();
                 break;
             case 'month':
-                key = data.timestamp.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                key = data.timestamp.toISOString().slice(0, 7);
                 sortKey = data.timestamp.getFullYear() * 12 + data.timestamp.getMonth();
                 break;
             case 'dateHour':
