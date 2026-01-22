@@ -131,7 +131,8 @@ class ChartRenderer {
             hour: 'TPS/ITPS/OTPS By Hour of Day',
             dayOfWeek: 'TPS/ITPS/OTPS By Day of Week',
             dayOfMonth: 'TPS/ITPS/OTPS By Day of Month',
-            month: 'TPS/ITPS/OTPS By Month'
+            month: 'TPS/ITPS/OTPS By Month',
+            dateHour: 'TPS/ITPS/OTPS By Date and Hour'
         };
         return titles[period] || 'TPS';
     }
@@ -142,7 +143,8 @@ class ChartRenderer {
             hour: 'Hour (0-23)',
             dayOfWeek: 'Day',
             dayOfMonth: 'Day of Month',
-            month: 'Month'
+            month: 'Month',
+            dateHour: 'Date & Hour'
         };
         return titles[period] || 'Period';
     }
