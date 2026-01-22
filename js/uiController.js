@@ -240,25 +240,30 @@ class UIController {
         }
 
         // Build table data for DataTables
-        const tableData = sessions.map(session => [
-            `<code>${this.escapeHtml(session.id)}</code>`,
-            session.timestamp.toLocaleDateString('en-CA'),
-            session.turnCount,
-            session.totalTokens.toLocaleString(),
-            session.inputTokens.toLocaleString(),
-            session.outputTokens.toLocaleString(),
-            session.averageTPS.toFixed(2),
-            session.averageITPS.toFixed(2),
-            session.averageOTPS.toFixed(2),
-            session.models && session.models.length > 0 ? session.models.join(', ') : 'unknown'
-        ]);
+        const tableData = sessions.map(session => {
+            // Format: YYYY-MM-DD HH:MM:SS
+            const dateStr = session.timestamp.toLocaleDateString('en-CA');
+            const timeStr = session.timestamp.toLocaleTimeString('en-CA', { hour12: false });
+            return [
+                `<code>${this.escapeHtml(session.id)}</code>`,
+                `${dateStr} ${timeStr}`,
+                session.turnCount,
+                session.totalTokens.toLocaleString(),
+                session.inputTokens.toLocaleString(),
+                session.outputTokens.toLocaleString(),
+                session.averageTPS.toFixed(2),
+                session.averageITPS.toFixed(2),
+                session.averageOTPS.toFixed(2),
+                session.models && session.models.length > 0 ? session.models.join(', ') : 'unknown'
+            ];
+        });
 
         this.sessionsTable.innerHTML = `
             <table id="sessions-datatable" class="display">
                 <thead>
                     <tr>
                         <th>Session ID</th>
-                        <th>Date</th>
+                        <th>Date & Time</th>
                         <th>Turns</th>
                         <th>Total Tokens</th>
                         <th>Input Tokens</th>
