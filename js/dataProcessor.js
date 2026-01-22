@@ -131,7 +131,7 @@ function calculateTurnTPS(turn, sessionId) {
 /**
  * Aggregate TPS by time period
  * @param {Array} tpsData - Array of TPS data points
- * @param {string} period - 'hour', 'dayOfWeek', 'dayOfMonth', 'month', 'session'
+ * @param {string} period - 'hour', 'day', 'dayOfWeek', 'dayOfMonth', 'month', 'session'
  * @returns {Object} Aggregated data with labels and values
  */
 function aggregateByPeriod(tpsData, period) {
@@ -147,6 +147,10 @@ function aggregateByPeriod(tpsData, period) {
                 break;
             case 'hour':
                 key = data.timestamp.getHours();
+                break;
+            case 'day':
+                key = data.timestamp.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                sortKey = data.timestamp.getTime();
                 break;
             case 'dayOfWeek':
                 key = data.timestamp.toLocaleDateString('en-US', { weekday: 'long' });
@@ -198,7 +202,7 @@ function aggregateByPeriod(tpsData, period) {
         result.sort((a, b) => dayOrder.indexOf(a.label) - dayOrder.indexOf(b.label));
     } else if (period === 'hour' || period === 'dayOfMonth') {
         result.sort((a, b) => a.label - b.label);
-    } else if (period === 'month') {
+    } else if (period === 'day' || period === 'month') {
         result.sort((a, b) => a.sortKey - b.sortKey);
     } else {
         result.sort((a, b) => a.label.localeCompare(b.label));
