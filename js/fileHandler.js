@@ -33,6 +33,9 @@ class FileHandler {
         if (this.fallbackInput) {
             this.fallbackInput.addEventListener('change', (e) => this.handleFallbackInput(e));
         }
+
+        // Clear cache button
+        document.getElementById('clear-cache')?.addEventListener('click', () => this.clearCache());
     }
 
     async selectDirectory() {
@@ -165,5 +168,20 @@ class FileHandler {
 
     hideError() {
         if (this.errorModal) this.errorModal.classList.add('hidden');
+    }
+
+    async clearCache() {
+        if (!this.cacheManager) return;
+        try {
+            await this.cacheManager.clear();
+            alert('Cache cleared successfully!');
+            this.reloadData();
+        } catch (e) {
+            this.showError(`Failed to clear cache: ${e.message}`);
+        }
+    }
+
+    reloadData() {
+        window.dispatchEvent(new CustomEvent('reloadRequested'));
     }
 }

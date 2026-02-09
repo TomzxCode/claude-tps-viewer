@@ -34,6 +34,11 @@ class UIController {
             this.showDashboard();
         });
 
+        // Listen for reload requested event
+        window.addEventListener('reloadRequested', () => {
+            this.reloadData();
+        });
+
         // Period tab buttons
         this.periodButtons.forEach(button => {
             button.addEventListener('click', () => {
@@ -61,12 +66,17 @@ class UIController {
         if (this.modelSelectChart) {
             this.modelSelectChart.addEventListener('change', onModelChange);
         }
+
+        // Top control buttons
+        document.getElementById('reload-data')?.addEventListener('click', () => this.reloadData());
+        document.getElementById('export-data')?.addEventListener('click', () => this.exportData());
     }
 
     showDashboard() {
         if (!this.dashboard) return;
 
         this.dashboard.classList.remove('hidden');
+        document.getElementById('top-controls').classList.remove('hidden');
 
         // Update summary cards
         if (this.summaryCards.totalSessions) {
@@ -314,5 +324,36 @@ class UIController {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    reloadData() {
+        // Hide dashboard and show file selection
+        this.dashboard.classList.add('hidden');
+        document.getElementById('top-controls').classList.add('hidden');
+        document.getElementById('file-selection').classList.remove('hidden');
+        document.body.classList.remove('data-loaded');
+        this.currentData = null;
+    }
+
+    exportData() {
+        if (!this.currentData) return;
+
+        const exportData = {
+            summary: this.currentData.summary,
+            modelStats: this.currentData.modelStats,
+            sessions: this.currentData.sessions,
+            tpsData: this.currentData.allTPSData,
+            exportedAt: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `claude-tps-export-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
     }
 }

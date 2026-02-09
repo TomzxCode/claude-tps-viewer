@@ -44,6 +44,37 @@ body:not(.data-loaded) #file-selection {
     margin-top: 40px;
 }
 
+/* Top Controls */
+#top-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+#top-controls button {
+    padding: 10px 20px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+    font-size: 14px;
+}
+
+#top-controls button:hover {
+    background: #1a252f;
+}
+
+#top-controls button#clear-cache {
+    background: var(--error-color);
+}
+
+#top-controls button#clear-cache:hover {
+    background: #c0392b;
+}
+
 /* Header */
 header {
     text-align: center;
