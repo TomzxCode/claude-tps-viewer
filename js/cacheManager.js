@@ -15,12 +15,17 @@ class CacheManager {
      * Initialize IndexedDB database
      */
     async init() {
+        console.log('[CacheManager] init called');
         return new Promise((resolve, reject) => {
             const request = indexedDB.open(DB_NAME, DB_VERSION);
 
-            request.onerror = () => reject(request.error);
+            request.onerror = () => {
+                console.error('[CacheManager] init error:', request.error);
+                reject(request.error);
+            };
             request.onsuccess = () => {
                 this.db = request.result;
+                console.log('[CacheManager] init successful, db:', this.db);
                 resolve(this.db);
             };
 
@@ -89,6 +94,7 @@ class CacheManager {
      * Clear all cached data
      */
     async clear() {
+        console.log('[CacheManager] clear called');
         if (!this.db) await this.init();
 
         return new Promise((resolve, reject) => {
@@ -96,8 +102,14 @@ class CacheManager {
             const store = transaction.objectStore(STORE_NAME);
             const request = store.clear();
 
-            request.onerror = () => reject(request.error);
-            request.onsuccess = () => resolve();
+            request.onerror = () => {
+                console.error('[CacheManager] clear error:', request.error);
+                reject(request.error);
+            };
+            request.onsuccess = () => {
+                console.log('[CacheManager] clear successful');
+                resolve();
+            };
         });
     }
 

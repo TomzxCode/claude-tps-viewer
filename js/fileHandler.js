@@ -24,11 +24,15 @@ class FileHandler {
     }
 
     init() {
+        console.log('[FileHandler] init called');
         if (!this.selectButton) {
             console.error('Select directory button not found');
             return;
         }
-        this.selectButton.addEventListener('click', () => this.selectDirectory());
+        this.selectButton.addEventListener('click', () => {
+            console.log('[FileHandler] Select directory button clicked');
+            this.selectDirectory();
+        });
 
         const closeErrorBtn = document.getElementById('close-error');
         if (closeErrorBtn) {
@@ -46,16 +50,20 @@ class FileHandler {
     }
 
     async selectDirectory() {
+        console.log('[FileHandler] selectDirectory called');
         try {
             // Try File System Access API first (Chrome/Edge)
             if ('showDirectoryPicker' in window) {
+                console.log('[FileHandler] Using File System Access API');
                 const dirHandle = await window.showDirectoryPicker();
                 await this.readDirectory(dirHandle);
             } else {
+                console.log('[FileHandler] Using fallback file input');
                 // Fallback to traditional file input
                 this.useFallbackInput();
             }
         } catch (e) {
+            console.error('[FileHandler] selectDirectory error:', e);
             if (e.name !== 'AbortError') {
                 this.showError(e.message);
             }
@@ -63,15 +71,20 @@ class FileHandler {
     }
 
     async readDirectory(dirHandle) {
+        console.log('[FileHandler] readDirectory called');
         const files = [];
 
         // Recursively scan directory for JSONL files
         await this.scanDirectory(dirHandle, files);
 
+        console.log(`[FileHandler] Found ${files.length} total JSONL files`);
+
         // Filter for UUID-named files
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jsonl$/i;
         const validFiles = files.filter(f => uuidRegex.test(f.name));
         const skippedCount = files.length - validFiles.length;
+
+        console.log(`[FileHandler] Filtered to ${validFiles.length} valid UUID-named files`);
 
         if (validFiles.length === 0) {
             this.showError('No valid JSONL files found in directory (files must be named [uuid].jsonl)');
@@ -129,7 +142,7 @@ class FileHandler {
     }
 
     async processFiles(files) {
-        console.log(`[FileHandler] Starting to process ${files.length} file(s)`);
+        console.log(`[FileHandler] processFiles called with ${files.length} file(s)`);
         this.cacheHitCount = 0;
         this.processingStartTime = Date.now();
         this.showStatus(`Processing ${files.length} files...`, 0);
@@ -138,6 +151,7 @@ class FileHandler {
         this.hideCurrentFile();
 
         try {
+            console.log('[FileHandler] Calling processFiles from dataProcessor');
             const data = await processFiles(files, (processed, total, currentFile, isFromCache) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
@@ -168,8 +182,9 @@ class FileHandler {
             console.log(`[FileHandler] Dispatching dataLoaded event with:`, data);
             window.dispatchEvent(new CustomEvent('dataLoaded', { detail: data }));
         } catch (e) {
+            console.error('[FileHandler] Error in processFiles:', e);
             this.hideStatus();
-            this.showError(e.message);
+            this.showError(`Error processing files: ${e.message}`);
         }
     }
 
