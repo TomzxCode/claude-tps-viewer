@@ -235,9 +235,15 @@ class FileHandler {
     async clearCache() {
         if (!this.cacheManager) return;
         try {
-            await this.cacheManager.clear();
-            alert('Cache cleared successfully!');
-            this.reloadData();
+            const stats = await this.cacheManager.getStats();
+            const message = `Clear cache? This will remove ${stats.entryCount} cached entries and force all files to be reprocessed.`;
+
+            if (confirm(message)) {
+                await this.cacheManager.clear();
+                console.log('[FileHandler] Cache cleared');
+                alert('Cache cleared successfully! All files will be reprocessed on next load.');
+                this.reloadData();
+            }
         } catch (e) {
             this.showError(`Failed to clear cache: ${e.message}`);
         }

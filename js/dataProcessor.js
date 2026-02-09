@@ -368,13 +368,22 @@ async function processFiles(files, onProgress, cacheManager = null) {
                 // Use cached data
                 tpsData = cachedData.tpsData;
                 sessionData = cachedData.session;
-                filesFromCache++;
-                console.log(`[processFiles] ${file.name}: Using cached data`);
 
-                if (onProgress) {
-                    onProgress(filesProcessed + 1, files.length, file.name, true);
+                // Validate cached data - if empty, treat as uncached
+                if (!tpsData || tpsData.length === 0 || !sessionData || sessionData.turnCount === 0) {
+                    console.warn(`[processFiles] ${file.name}: Cached data is empty or invalid, reprocessing file`);
+                    cachedData = null;
+                } else {
+                    filesFromCache++;
+                    console.log(`[processFiles] ${file.name}: Using cached data (${tpsData.length} turns)`);
+
+                    if (onProgress) {
+                        onProgress(filesProcessed + 1, files.length, file.name, true);
+                    }
                 }
-            } else {
+            }
+
+            if (!cachedData) {
                 // Process file normally
                 const content = await file.text();
                 const messages = parseJSONL(content, file.name);
@@ -427,13 +436,14 @@ async function processFiles(files, onProgress, cacheManager = null) {
                     models: Array.from(sessionModels)
                 };
 
-                // Cache the processed data
-                if (cacheInitialized && fileKey) {
+                // Cache the processed data (only if valid)
+                if (cacheInitialized && fileKey && tpsData.length > 0 && sessionData.turnCount > 0) {
                     try {
                         await cacheManager.set(fileKey, file.name, {
                             tpsData,
                             session: sessionData
                         });
+                        console.log(`[processFiles] ${file.name}: Cached data (${tpsData.length} turns)`);
                     } catch (e) {
                         console.warn(`[processFiles] ${file.name}: Failed to cache data:`, e.message);
                     }
