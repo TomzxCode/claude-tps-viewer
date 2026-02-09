@@ -25,12 +25,14 @@
             <input type="file" id="file-input" webkitdirectory directory multiple aria-label="File input for directory selection" style="display:none">
             <div id="status-bar" class="hidden">
                 <span id="status-text">Loading...</span>
+                <div id="processing-file" class="hidden">Processing: <span id="current-file-name"></span></div>
                 <div id="cache-stats" class="hidden">
                     <span id="cache-hits">0</span> cache hits
                 </div>
                 <div id="progress-bar">
                     <div id="progress-fill"></div>
                 </div>
+                <div id="processing-details" class="hidden"></div>
             </div>
         </section>
 

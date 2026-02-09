@@ -324,7 +324,7 @@ function calculatePercentiles(values) {
 /**
  * Process multiple JSONL files
  * @param {Array<File>} files - Array of JSONL files
- * @param {Function} onProgress - Progress callback
+ * @param {Function} onProgress - Progress callback (processed, total, currentFile, isFromCache)
  * @param {CacheManager} cacheManager - Optional cache manager instance
  * @returns {Promise<Object>} Processed data
  */
@@ -370,6 +370,10 @@ async function processFiles(files, onProgress, cacheManager = null) {
                 sessionData = cachedData.session;
                 filesFromCache++;
                 console.log(`[processFiles] ${file.name}: Using cached data`);
+
+                if (onProgress) {
+                    onProgress(filesProcessed + 1, files.length, file.name, true);
+                }
             } else {
                 // Process file normally
                 const content = await file.text();
@@ -446,7 +450,7 @@ async function processFiles(files, onProgress, cacheManager = null) {
             filesProcessed++;
 
             if (onProgress) {
-                onProgress(filesProcessed, files.length);
+                onProgress(filesProcessed, files.length, file.name, !!cachedData);
             }
         } catch (e) {
             console.error(`[processFiles] ${file.name}: ${e.name}: ${e.message}`);

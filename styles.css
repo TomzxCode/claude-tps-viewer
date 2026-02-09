@@ -171,6 +171,24 @@ body:not(.data-loaded) header {
     color: #7f8c8d;
 }
 
+#processing-file {
+    display: block;
+    margin-top: 5px;
+    font-size: 13px;
+    color: var(--text-color);
+}
+
+#current-file-name {
+    font-weight: 600;
+}
+
+#processing-details {
+    display: block;
+    margin-top: 8px;
+    font-size: 12px;
+    color: #7f8c8d;
+}
+
 /* Dashboard */
 #dashboard {
     margin-top: 30px;

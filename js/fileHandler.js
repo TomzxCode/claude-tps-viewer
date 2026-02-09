@@ -9,12 +9,16 @@ class FileHandler {
         this.statusBar = document.getElementById('status-bar');
         this.statusText = document.getElementById('status-text');
         this.progressFill = document.getElementById('progress-fill');
+        this.processingFile = document.getElementById('processing-file');
+        this.currentFileName = document.getElementById('current-file-name');
         this.cacheStats = document.getElementById('cache-stats');
         this.cacheHits = document.getElementById('cache-hits');
+        this.processingDetails = document.getElementById('processing-details');
         this.errorModal = document.getElementById('error-modal');
         this.errorMessage = document.getElementById('error-message');
         this.fallbackInput = document.getElementById('file-input');
         this.cacheHitCount = 0;
+        this.processingStartTime = 0;
 
         this.init();
     }
@@ -127,14 +131,24 @@ class FileHandler {
     async processFiles(files) {
         console.log(`[FileHandler] Starting to process ${files.length} file(s)`);
         this.cacheHitCount = 0;
+        this.processingStartTime = Date.now();
         this.showStatus(`Processing ${files.length} files...`, 0);
         this.updateCacheStats(0);
+        this.hideProcessingDetails();
+        this.hideCurrentFile();
 
         try {
-            const data = await processFiles(files, (processed, total) => {
+            const data = await processFiles(files, (processed, total, currentFile, isFromCache) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
                 this.updateCacheStats(data.summary?.filesFromCache || 0);
+                this.showCurrentFile(currentFile);
+
+                if (isFromCache) {
+                    this.cacheHitCount++;
+                }
+
+                this.updateProcessingDetails(processed, total, this.cacheHitCount);
             }, this.cacheManager);
 
             console.log(`[FileHandler] Processing complete:`, data.summary);
@@ -168,6 +182,38 @@ class FileHandler {
         if (this.cacheStats && hits > 0) {
             this.cacheStats.classList.remove('hidden');
             if (this.cacheHits) this.cacheHits.textContent = hits;
+        }
+    }
+
+    showCurrentFile(fileName) {
+        if (this.processingFile) {
+            this.processingFile.classList.remove('hidden');
+            if (this.currentFileName) {
+                this.currentFileName.textContent = fileName;
+            }
+        }
+    }
+
+    hideCurrentFile() {
+        if (this.processingFile) {
+            this.processingFile.classList.add('hidden');
+        }
+    }
+
+    updateProcessingDetails(processed, total, cacheHits) {
+        if (this.processingDetails) {
+            const elapsed = ((Date.now() - this.processingStartTime) / 1000).toFixed(1);
+            const remaining = processed > 0 ? ((elapsed / processed) * (total - processed)).toFixed(1) : 0;
+            const cachePercent = ((cacheHits / processed) * 100).toFixed(0);
+
+            this.processingDetails.classList.remove('hidden');
+            this.processingDetails.textContent = `Elapsed: ${elapsed}s | Est. remaining: ${remaining}s | Cache hit rate: ${cachePercent}%`;
+        }
+    }
+
+    hideProcessingDetails() {
+        if (this.processingDetails) {
+            this.processingDetails.classList.add('hidden');
         }
     }
 
