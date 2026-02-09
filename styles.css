@@ -379,6 +379,48 @@ body:not(.data-loaded) header {
     background: #1a252f;
 }
 
+/* Help Modal */
+.help-modal-content {
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.help-section {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.help-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.help-section h3 {
+    margin: 0 0 8px 0;
+    color: var(--primary-color);
+    font-size: 16px;
+}
+
+.help-section p {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.help-section ul {
+    margin: 8px 0 0 20px;
+    padding: 0;
+    font-size: 14px;
+}
+
+.help-section li {
+    margin: 4px 0;
+    line-height: 1.4;
+}
+
 /* Utility */
 .hidden {
     display: none !important;

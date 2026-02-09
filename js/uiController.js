@@ -71,9 +71,16 @@ class UIController {
         document.getElementById('reload-data')?.addEventListener('click', () => this.reloadData());
         document.getElementById('export-data')?.addEventListener('click', () => this.exportData());
         document.getElementById('dark-mode-toggle')?.addEventListener('click', () => this.toggleDarkMode());
+        document.getElementById('help-button')?.addEventListener('click', () => this.showHelp());
+
+        // Close help modal
+        document.getElementById('close-help')?.addEventListener('click', () => this.hideHelp());
 
         // Load saved dark mode preference
         this.loadDarkModePreference();
+
+        // Global keyboard shortcuts
+        this.setupKeyboardShortcuts();
     }
 
     showDashboard() {
@@ -380,5 +387,72 @@ class UIController {
                 toggleBtn.textContent = '☀️';
             }
         }
+    }
+
+    showHelp() {
+        const helpModal = document.getElementById('help-modal');
+        if (helpModal) {
+            helpModal.classList.remove('hidden');
+        }
+    }
+
+    hideHelp() {
+        const helpModal = document.getElementById('help-modal');
+        if (helpModal) {
+            helpModal.classList.add('hidden');
+        }
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger if user is typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            switch (e.key.toLowerCase()) {
+                case 'r':
+                    if (document.getElementById('reload-data')) {
+                        e.preventDefault();
+                        this.reloadData();
+                    }
+                    break;
+                case 'e':
+                    if (document.getElementById('export-data')) {
+                        e.preventDefault();
+                        this.exportData();
+                    }
+                    break;
+                case 'c':
+                    if (document.getElementById('clear-cache')) {
+                        e.preventDefault();
+                        window.dispatchEvent(new CustomEvent('clearCacheRequested'));
+                    }
+                    break;
+                case 'd':
+                    if (document.getElementById('dark-mode-toggle')) {
+                        e.preventDefault();
+                        this.toggleDarkMode();
+                    }
+                    break;
+                case 'h':
+                    if (document.getElementById('help-button')) {
+                        e.preventDefault();
+                        this.showHelp();
+                    }
+                    break;
+                case 'escape':
+                    this.hideHelp();
+                    document.getElementById('error-modal')?.classList.add('hidden');
+                    break;
+            }
+        });
+
+        // Listen for clear cache requested
+        window.addEventListener('clearCacheRequested', () => {
+            if (window.app && window.app.fileHandler) {
+                window.app.fileHandler.clearCache();
+            }
+        });
     }
 }

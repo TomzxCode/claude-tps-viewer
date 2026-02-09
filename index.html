@@ -39,6 +39,7 @@
             <button id="export-data" title="Export data (E)">Export Data</button>
             <button id="clear-cache" title="Clear cache (C)">Clear Cache</button>
             <button id="dark-mode-toggle" title="Toggle dark mode (D)">🌙</button>
+            <button id="help-button" title="Help (H)">❓</button>
         </section>
 
         <section id="dashboard" class="hidden">
@@ -150,6 +151,46 @@
                 <h2>Error</h2>
                 <p id="error-message"></p>
                 <button id="close-error">Close</button>
+            </div>
+        </section>
+
+        <section id="help-modal" class="modal hidden">
+            <div class="modal-content help-modal-content">
+                <h2>Help - Metric Definitions</h2>
+                <div class="help-section">
+                    <h3>TPS (Tokens Per Second)</h3>
+                    <p>Total tokens (input + output) processed per second during a conversation turn.</p>
+                </div>
+                <div class="help-section">
+                    <h3>ITPS (Input TPS)</h3>
+                    <p>Input tokens processed per second during a conversation turn.</p>
+                </div>
+                <div class="help-section">
+                    <h3>OTPS (Output TPS)</h3>
+                    <p>Output tokens generated per second during a conversation turn.</p>
+                </div>
+                <div class="help-section">
+                    <h3>Percentiles (p50, p75, p95, pMax)</h3>
+                    <p>Statistical measures showing distribution:</p>
+                    <ul>
+                        <li><strong>p50:</strong> Median (50% of values below this)</li>
+                        <li><strong>p75:</strong> 75th percentile (75% below this)</li>
+                        <li><strong>p95:</strong> 95th percentile (95% below this)</li>
+                        <li><strong>pMax:</strong> Maximum value</li>
+                    </ul>
+                </div>
+                <div class="help-section">
+                    <h3>Keyboard Shortcuts</h3>
+                    <ul>
+                        <li><strong>R:</strong> Reload data</li>
+                        <li><strong>E:</strong> Export data</li>
+                        <li><strong>C:</strong> Clear cache</li>
+                        <li><strong>D:</strong> Toggle dark mode</li>
+                        <li><strong>H:</strong> Show help</li>
+                        <li><strong>Esc:</strong> Close modals</li>
+                    </ul>
+                </div>
+                <button id="close-help">Close</button>
             </div>
         </section>
     </div>
