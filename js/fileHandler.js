@@ -9,9 +9,12 @@ class FileHandler {
         this.statusBar = document.getElementById('status-bar');
         this.statusText = document.getElementById('status-text');
         this.progressFill = document.getElementById('progress-fill');
+        this.cacheStats = document.getElementById('cache-stats');
+        this.cacheHits = document.getElementById('cache-hits');
         this.errorModal = document.getElementById('error-modal');
         this.errorMessage = document.getElementById('error-message');
         this.fallbackInput = document.getElementById('file-input');
+        this.cacheHitCount = 0;
 
         this.init();
     }
@@ -123,12 +126,15 @@ class FileHandler {
 
     async processFiles(files) {
         console.log(`[FileHandler] Starting to process ${files.length} file(s)`);
+        this.cacheHitCount = 0;
         this.showStatus(`Processing ${files.length} files...`, 0);
+        this.updateCacheStats(0);
 
         try {
             const data = await processFiles(files, (processed, total) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
+                this.updateCacheStats(data.summary?.filesFromCache || 0);
             }, this.cacheManager);
 
             console.log(`[FileHandler] Processing complete:`, data.summary);
@@ -155,6 +161,14 @@ class FileHandler {
         if (this.statusBar) this.statusBar.classList.remove('hidden');
         if (this.statusText) this.statusText.textContent = text;
         if (this.progressFill) this.progressFill.style.width = `${percentage}%`;
+    }
+
+    updateCacheStats(hits) {
+        this.cacheHitCount = hits;
+        if (this.cacheStats && hits > 0) {
+            this.cacheStats.classList.remove('hidden');
+            if (this.cacheHits) this.cacheHits.textContent = hits;
+        }
     }
 
     hideStatus() {
