@@ -70,6 +70,10 @@ class UIController {
         // Top control buttons
         document.getElementById('reload-data')?.addEventListener('click', () => this.reloadData());
         document.getElementById('export-data')?.addEventListener('click', () => this.exportData());
+        document.getElementById('dark-mode-toggle')?.addEventListener('click', () => this.toggleDarkMode());
+
+        // Load saved dark mode preference
+        this.loadDarkModePreference();
     }
 
     showDashboard() {
@@ -355,5 +359,26 @@ class UIController {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
+    }
+
+    toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+        const toggleBtn = document.getElementById('dark-mode-toggle');
+        if (toggleBtn) {
+            toggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
+        }
+    }
+
+    loadDarkModePreference() {
+        const savedMode = localStorage.getItem('darkMode');
+        if (savedMode === 'true') {
+            document.body.classList.add('dark-mode');
+            const toggleBtn = document.getElementById('dark-mode-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = '☀️';
+            }
+        }
     }
 }

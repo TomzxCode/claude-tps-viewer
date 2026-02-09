@@ -8,6 +8,16 @@
     --error-color: #e74c3c;
 }
 
+body.dark-mode {
+    --primary-color: #ecf0f1;
+    --accent-color: #27ae60;
+    --bg-color: #1a1a2e;
+    --card-bg: #16213e;
+    --text-color: #e0e0e0;
+    --border-color: #3a3a5c;
+    --error-color: #ff6b6b;
+}
+
 * {
     box-sizing: border-box;
 }
@@ -507,7 +517,7 @@ body:not(.data-loaded) header {
 }
 
 .model-stat-card {
-    background: #f8f9fa;
+    background: var(--card-bg);
     padding: 15px;
     border-radius: 6px;
     border-left: 4px solid var(--accent-color);
