@@ -141,13 +141,13 @@ class FileHandler {
             const data = await processFiles(files, (processed, total, currentFile, isFromCache) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
-                this.updateCacheStats(data.summary?.filesFromCache || 0);
                 this.showCurrentFile(currentFile);
 
                 if (isFromCache) {
                     this.cacheHitCount++;
                 }
 
+                this.updateCacheStats(this.cacheHitCount);
                 this.updateProcessingDetails(processed, total, this.cacheHitCount);
             }, this.cacheManager);
 
