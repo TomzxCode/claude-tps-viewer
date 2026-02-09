@@ -466,12 +466,31 @@ body.dark-mode .date-range-filter input[type="date"] {
     background: #229954;
 }
 
+body.dark-mode .date-range-filter button {
+    background: #2c3e50;
+    color: white;
+}
+
+body.dark-mode .date-range-filter button:hover {
+    background: #34495e;
+}
+
 .date-range-filter button#clear-date-filter {
     background: var(--primary-color);
 }
 
+body.dark-mode .date-range-filter button#clear-date-filter {
+    background: #e74c3c;
+    border-color: #e74c3c;
+}
+
 .date-range-filter button#clear-date-filter:hover {
     background: #1a252f;
+}
+
+body.dark-mode .date-range-filter button#clear-date-filter:hover {
+    background: #c0392b;
+    border-color: #c0392b;
 }
 
 /* Model Filter for Chart */
@@ -727,12 +746,26 @@ body.dark-mode .modal-content button:hover {
     border-bottom: none !important;
 }
 
+body.dark-mode #sessions-datatable thead th {
+    background: #1a252f !important;
+    color: #ecf0f1 !important;
+    border-bottom: 1px solid #4a4a6c !important;
+}
+
 #sessions-datatable tbody td {
     padding: 12px !important;
 }
 
+body.dark-mode #sessions-datatable tbody td {
+    color: #e0e0e0 !important;
+}
+
 #sessions-datatable tbody tr:hover {
     background: #f8f9fa !important;
+}
+
+body.dark-mode #sessions-datatable tbody tr:hover {
+    background: #2a2a4a !important;
 }
 
 #sessions-datatable code {
