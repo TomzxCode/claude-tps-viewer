@@ -20,9 +20,9 @@
             <p class="subtitle">Visualize Claude Code session performance</p>
         </header>
 
-        <section id="file-selection">
-            <button id="select-directory">Select Directory</button>
-            <input type="file" id="file-input" webkitdirectory directory multiple style="display:none">
+        <section id="file-selection" role="region" aria-label="File Selection">
+            <button id="select-directory" aria-label="Select directory containing JSONL session files">Select Directory</button>
+            <input type="file" id="file-input" webkitdirectory directory multiple aria-label="File input for directory selection" style="display:none">
             <div id="status-bar" class="hidden">
                 <span id="status-text">Loading...</span>
                 <div id="cache-stats" class="hidden">
@@ -34,19 +34,19 @@
             </div>
         </section>
 
-        <section id="top-controls" class="hidden">
-            <button id="reload-data" title="Reload data (R)">Reload Data</button>
-            <button id="export-data" title="Export data (E)">Export Data</button>
-            <button id="clear-cache" title="Clear cache (C)">Clear Cache</button>
-            <button id="dark-mode-toggle" title="Toggle dark mode (D)">🌙</button>
-            <button id="help-button" title="Help (H)">❓</button>
+        <section id="top-controls" class="hidden" role="toolbar" aria-label="Control Buttons">
+            <button id="reload-data" title="Reload data (R)" aria-label="Reload data">Reload Data</button>
+            <button id="export-data" title="Export data (E)" aria-label="Export data to JSON">Export Data</button>
+            <button id="clear-cache" title="Clear cache (C)" aria-label="Clear cached data">Clear Cache</button>
+            <button id="dark-mode-toggle" title="Toggle dark mode (D)" aria-label="Toggle dark mode">🌙</button>
+            <button id="help-button" title="Help (H)" aria-label="Show help information">❓</button>
         </section>
 
-        <section id="dashboard" class="hidden">
-            <div class="summary-cards">
+        <section id="dashboard" class="hidden" role="main" aria-label="Dashboard">
+            <div class="summary-cards" role="region" aria-label="Summary Statistics">
                 <div class="card">
                     <h3>Total Sessions</h3>
-                    <p id="total-sessions">0</p>
+                    <p id="total-sessions" aria-live="polite">0</p>
                 </div>
                 <div class="card">
                     <h3>Average TPS</h3>
@@ -104,15 +104,15 @@
                 </div>
             </div>
 
-            <div class="chart-controls">
-                <div class="time-period-tabs">
-                    <button data-period="session" class="active">Per Session</button>
-                    <button data-period="hour">By Hour</button>
-                    <button data-period="day">By Date</button>
-                    <button data-period="dateHour">By Date & Hour</button>
-                    <button data-period="dayOfWeek">By Day of Week</button>
-                    <button data-period="dayOfMonth">By Day of Month</button>
-                    <button data-period="month">By Month</button>
+            <div class="chart-controls" role="region" aria-label="Chart Controls">
+                <div class="time-period-tabs" role="tablist" aria-label="Time Period">
+                    <button data-period="session" class="active" role="tab" aria-selected="true">Per Session</button>
+                    <button data-period="hour" role="tab" aria-selected="false">By Hour</button>
+                    <button data-period="day" role="tab" aria-selected="false">By Date</button>
+                    <button data-period="dateHour" role="tab" aria-selected="false">By Date & Hour</button>
+                    <button data-period="dayOfWeek" role="tab" aria-selected="false">By Day of Week</button>
+                    <button data-period="dayOfMonth" role="tab" aria-selected="false">By Day of Month</button>
+                    <button data-period="month" role="tab" aria-selected="false">By Month</button>
                 </div>
 
                 <div class="chart-options">
@@ -149,17 +149,17 @@
                 <div id="model-stats"></div>
             </div>
 
-            <div class="sessions-list">
+            <div class="sessions-list" role="region" aria-label="Sessions List">
                 <div class="sessions-header">
                     <h2>Sessions</h2>
                     <div class="model-filter">
                         <label for="model-select">Filter by model:</label>
-                        <select id="model-select">
+                        <select id="model-select" aria-label="Filter sessions by model">
                             <option value="all">All Models</option>
                         </select>
                     </div>
                 </div>
-                <div id="sessions-table"></div>
+                <div id="sessions-table" role="table" aria-live="polite"></div>
             </div>
         </section>
 
@@ -171,9 +171,9 @@
             </div>
         </section>
 
-        <section id="help-modal" class="modal hidden">
+        <section id="help-modal" class="modal hidden" role="dialog" aria-labelledby="help-title" aria-modal="true">
             <div class="modal-content help-modal-content">
-                <h2>Help - Metric Definitions</h2>
+                <h2 id="help-title">Help - Metric Definitions</h2>
                 <div class="help-section">
                     <h3>TPS (Tokens Per Second)</h3>
                     <p>Total tokens (input + output) processed per second during a conversation turn.</p>

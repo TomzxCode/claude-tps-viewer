@@ -43,8 +43,12 @@ class UIController {
         // Period tab buttons
         this.periodButtons.forEach(button => {
             button.addEventListener('click', () => {
-                this.periodButtons.forEach(b => b.classList.remove('active'));
+                this.periodButtons.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-selected', 'false');
+                });
                 button.classList.add('active');
+                button.setAttribute('aria-selected', 'true');
 
                 const period = button.dataset.period;
                 this.updateChart(period);
