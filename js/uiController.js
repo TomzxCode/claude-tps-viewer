@@ -23,6 +23,7 @@ class UIController {
         this.currentData = null;
         this.dataTable = null;
         this.currentModelFilter = 'all';
+        this.dateRange = { from: null, to: null };
 
         this.init();
     }
@@ -60,6 +61,10 @@ class UIController {
                 this.updateChartForChartType(chartType);
             });
         });
+
+        // Date range filter
+        document.getElementById('apply-date-filter')?.addEventListener('click', () => this.applyDateFilter());
+        document.getElementById('clear-date-filter')?.addEventListener('click', () => this.clearDateFilter());
 
         // Model filter dropdowns (sync both)
         const onModelChange = (e) => {
@@ -277,6 +282,16 @@ class UIController {
             tpsData = tpsData.filter(d => d.model === this.currentModelFilter);
         }
 
+        // Filter by date range if set
+        if (this.dateRange.from || this.dateRange.to) {
+            tpsData = tpsData.filter(d => {
+                const timestamp = d.timestamp.getTime();
+                if (this.dateRange.from && timestamp < this.dateRange.from) return false;
+                if (this.dateRange.to && timestamp > this.dateRange.to) return false;
+                return true;
+            });
+        }
+
         // Use provided chart type or get from active button
         if (!chartType) {
             const activeChartType = document.querySelector('.chart-type-buttons button.active');
@@ -294,6 +309,16 @@ class UIController {
         // Filter by model if selected
         if (this.currentModelFilter !== 'all') {
             sessions = sessions.filter(s => s.models && s.models.includes(this.currentModelFilter));
+        }
+
+        // Filter by date range if set
+        if (this.dateRange.from || this.dateRange.to) {
+            sessions = sessions.filter(s => {
+                const timestamp = s.timestamp.getTime();
+                if (this.dateRange.from && timestamp < this.dateRange.from) return false;
+                if (this.dateRange.to && timestamp > this.dateRange.to) return false;
+                return true;
+            });
         }
 
         // Build table data for DataTables
@@ -437,6 +462,32 @@ class UIController {
         if (helpModal) {
             helpModal.classList.add('hidden');
         }
+    }
+
+    applyDateFilter() {
+        const fromDate = document.getElementById('date-from')?.value;
+        const toDate = document.getElementById('date-to')?.value;
+
+        this.dateRange.from = fromDate ? new Date(fromDate + 'T00:00:00').getTime() : null;
+        this.dateRange.to = toDate ? new Date(toDate + 'T23:59:59').getTime() : null;
+
+        const activePeriod = document.querySelector('.time-period-tabs button.active');
+        const period = activePeriod ? activePeriod.dataset.period : 'session';
+        this.updateChart(period);
+        this.renderSessionsTable();
+    }
+
+    clearDateFilter() {
+        this.dateRange = { from: null, to: null };
+        const fromDateInput = document.getElementById('date-from');
+        const toDateInput = document.getElementById('date-to');
+        if (fromDateInput) fromDateInput.value = '';
+        if (toDateInput) toDateInput.value = '';
+
+        const activePeriod = document.querySelector('.time-period-tabs button.active');
+        const period = activePeriod ? activePeriod.dataset.period : 'session';
+        this.updateChart(period);
+        this.renderSessionsTable();
     }
 
     setupKeyboardShortcuts() {

@@ -289,6 +289,51 @@ body:not(.data-loaded) header {
     color: white;
 }
 
+/* Date Range Filter */
+.date-range-filter {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.date-range-filter label {
+    font-size: 13px;
+    color: var(--text-color);
+}
+
+.date-range-filter input[type="date"] {
+    padding: 6px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 13px;
+}
+
+.date-range-filter button {
+    padding: 6px 12px;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.3s;
+}
+
+.date-range-filter button:hover {
+    background: #229954;
+}
+
+.date-range-filter button#clear-date-filter {
+    background: var(--primary-color);
+}
+
+.date-range-filter button#clear-date-filter:hover {
+    background: #1a252f;
+}
+
 /* Model Filter for Chart */
 .model-filter-chart {
     display: flex;
