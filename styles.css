@@ -255,6 +255,40 @@ body:not(.data-loaded) header {
     min-height: 400px;
 }
 
+/* Chart Options */
+.chart-options {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.chart-type-buttons {
+    display: flex;
+    gap: 5px;
+}
+
+.chart-type-buttons button {
+    padding: 8px 12px;
+    background: var(--card-bg);
+    border: 2px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 16px;
+    color: var(--text-color);
+}
+
+.chart-type-buttons button:hover {
+    border-color: var(--accent-color);
+}
+
+.chart-type-buttons button.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
 /* Model Filter for Chart */
 .model-filter-chart {
     display: flex;

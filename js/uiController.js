@@ -50,6 +50,17 @@ class UIController {
             });
         });
 
+        // Chart type buttons
+        document.querySelectorAll('.chart-type-buttons button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.chart-type-buttons button').forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+
+                const chartType = button.dataset.chartType;
+                this.updateChartForChartType(chartType);
+            });
+        });
+
         // Model filter dropdowns (sync both)
         const onModelChange = (e) => {
             this.currentModelFilter = e.target.value;
@@ -248,6 +259,31 @@ class UIController {
         const activePeriod = document.querySelector('.time-period-tabs button.active');
         const period = activePeriod ? activePeriod.dataset.period : 'session';
         this.updateChart(period);
+    }
+
+    updateChartForChartType(chartType) {
+        const activePeriod = document.querySelector('.time-period-tabs button.active');
+        const period = activePeriod ? activePeriod.dataset.period : 'session';
+        this.updateChart(period, chartType);
+    }
+
+    updateChart(period, chartType) {
+        if (!this.currentData || !this.chartRenderer) return;
+
+        let tpsData = this.currentData.allTPSData;
+
+        // Filter by model if selected
+        if (this.currentModelFilter !== 'all') {
+            tpsData = tpsData.filter(d => d.model === this.currentModelFilter);
+        }
+
+        // Use provided chart type or get from active button
+        if (!chartType) {
+            const activeChartType = document.querySelector('.chart-type-buttons button.active');
+            chartType = activeChartType ? activeChartType.dataset.chartType : 'bar';
+        }
+
+        this.chartRenderer.renderChart(tpsData, period, chartType);
     }
 
     renderSessionsTable() {

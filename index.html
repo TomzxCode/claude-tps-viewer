@@ -115,11 +115,19 @@
                     <button data-period="month">By Month</button>
                 </div>
 
-                <div class="model-filter-chart">
-                    <label for="model-select-chart">Filter by model:</label>
-                    <select id="model-select-chart">
-                        <option value="all">All Models</option>
-                    </select>
+                <div class="chart-options">
+                    <div class="chart-type-buttons">
+                        <button data-chart-type="bar" class="active" title="Bar Chart">📊</button>
+                        <button data-chart-type="line" title="Line Chart">📈</button>
+                        <button data-chart-type="scatter" title="Scatter Plot">⚫</button>
+                    </div>
+
+                    <div class="model-filter-chart">
+                        <label for="model-select-chart">Filter by model:</label>
+                        <select id="model-select-chart">
+                            <option value="all">All Models</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
