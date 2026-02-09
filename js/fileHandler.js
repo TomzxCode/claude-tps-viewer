@@ -152,6 +152,7 @@ class FileHandler {
             }, this.cacheManager);
 
             console.log(`[FileHandler] Processing complete:`, data.summary);
+            console.log(`[FileHandler] Full data object:`, data);
 
             this.hideStatus();
 
@@ -164,6 +165,7 @@ class FileHandler {
             }
 
             // Emit event with processed data
+            console.log(`[FileHandler] Dispatching dataLoaded event with:`, data);
             window.dispatchEvent(new CustomEvent('dataLoaded', { detail: data }));
         } catch (e) {
             this.hideStatus();

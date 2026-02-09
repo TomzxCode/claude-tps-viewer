@@ -24,16 +24,32 @@ class UIController {
         this.dataTable = null;
         this.currentModelFilter = 'all';
         this.dateRange = { from: null, to: null };
+        this.isInitialized = false;
 
         this.init();
     }
 
     init() {
+        console.log('[UIController] init called, isInitialized:', this.isInitialized);
+
+        // Prevent double initialization
+        if (this.isInitialized) {
+            console.warn('[UIController] Already initialized, skipping');
+            return;
+        }
+
+        this.isInitialized = true;
+
         // Listen for data loaded event
-        window.addEventListener('dataLoaded', (e) => {
+        this.handleDataLoaded = (e) => {
+            console.log('[UIController] dataLoaded event received, detail:', e.detail);
+            console.log('[UIController] detail type:', typeof e.detail);
+            console.log('[UIController] detail keys:', e.detail ? Object.keys(e.detail) : 'none');
+
             this.currentData = e.detail;
             this.showDashboard();
-        });
+        };
+        window.addEventListener('dataLoaded', this.handleDataLoaded);
 
         // Listen for reload requested event
         window.addEventListener('reloadRequested', () => {
@@ -106,12 +122,28 @@ class UIController {
     showDashboard() {
         if (!this.dashboard) return;
 
+        console.log('[UIController] showDashboard called');
+        console.log('[UIController] currentData:', this.currentData);
+        console.log('[UIController] summaryCards:', this.summaryCards);
+
+        if (!this.currentData) {
+            console.error('[UIController] ERROR: currentData is null or undefined!');
+            return;
+        }
+
+        if (!this.currentData.summary) {
+            console.error('[UIController] ERROR: currentData.summary is missing!');
+            return;
+        }
+
         this.dashboard.classList.remove('hidden');
         document.getElementById('top-controls').classList.remove('hidden');
 
         // Update summary cards
         if (this.summaryCards.totalSessions) {
-            this.summaryCards.totalSessions.textContent = this.currentData.summary.totalSessions;
+            const value = this.currentData.summary.totalSessions;
+            console.log('[UIController] Setting totalSessions to:', value, 'element:', this.summaryCards.totalSessions);
+            this.summaryCards.totalSessions.textContent = value;
         }
         if (this.summaryCards.averageTPS) {
             this.summaryCards.averageTPS.textContent = this.currentData.summary.averageTPS.toFixed(2);
