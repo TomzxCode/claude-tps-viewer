@@ -66,15 +66,85 @@ body:not(.data-loaded) #file-selection {
     padding: 10px 20px;
     background: var(--primary-color);
     color: white;
-    border: none;
+    border: 1px solid var(--primary-color);
     border-radius: 6px;
     cursor: pointer;
-    transition: background 0.3s;
+    transition: background 0.3s, border-color 0.3s;
     font-size: 14px;
 }
 
 #top-controls button:hover {
     background: #1a252f;
+    border-color: #1a252f;
+}
+
+#top-controls button#clear-cache {
+    background: var(--error-color);
+}
+
+#top-controls button#clear-cache:hover {
+    background: #c0392b;
+}
+
+body.dark-mode #top-controls button {
+    color: #ffffff;
+    border-color: #4a4a6c;
+    background: #2c3e50;
+}
+
+body.dark-mode #top-controls button#reload-data,
+body.dark-mode #top-controls button#export-data {
+    color: #ffffff;
+    background: #2c3e50;
+    border: 1px solid #4a4a6c;
+}
+
+body.dark-mode #top-controls button:hover {
+    background: #3498db;
+    border-color: #3498db;
+}
+
+body.dark-mode #top-controls button#reload-data:hover,
+body.dark-mode #top-controls button#export-data:hover {
+    background: #3498db;
+    border-color: #3498db;
+}
+
+body.dark-mode #top-controls button#clear-cache {
+    background: #e74c3c;
+    border-color: #e74c3c;
+}
+
+body.dark-mode #top-controls button#clear-cache:hover {
+    background: #c0392b;
+    border-color: #c0392b;
+}
+
+body.dark-mode #top-controls button#dark-mode-toggle,
+body.dark-mode #top-controls button#help-button {
+    color: #ffffff;
+    background: #2c3e50;
+    border: 1px solid #4a4a6c;
+}
+
+body.dark-mode #top-controls button#dark-mode-toggle:hover,
+body.dark-mode #top-controls button#help-button:hover {
+    background: #3498db;
+    border-color: #3498db;
+}
+
+#top-controls button:hover {
+    background: #1a252f;
+}
+
+body.dark-mode #top-controls button {
+    color: #ffffff;
+    border-color: #4a4a6c;
+}
+
+body.dark-mode #top-controls button:hover {
+    background: #3498db;
+    border-color: #3498db;
 }
 
 #top-controls button#clear-cache {

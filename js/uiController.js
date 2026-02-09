@@ -533,7 +533,14 @@ class UIController {
                 return;
             }
 
-            switch (e.key.toLowerCase()) {
+            // Don't trigger if CTRL, ALT, or META are pressed (but allow Shift)
+            if (e.ctrlKey || e.altKey || e.metaKey) {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+
+            switch (key) {
                 case 'r':
                     if (document.getElementById('reload-data')) {
                         e.preventDefault();
@@ -547,7 +554,8 @@ class UIController {
                     }
                     break;
                 case 'c':
-                    if (document.getElementById('clear-cache')) {
+                    // Only trigger clear cache if Shift is pressed (Shift+C)
+                    if (e.shiftKey && document.getElementById('clear-cache')) {
                         e.preventDefault();
                         window.dispatchEvent(new CustomEvent('clearCacheRequested'));
                     }
