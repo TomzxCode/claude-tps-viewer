@@ -283,18 +283,16 @@ class UIController {
             this.dataTable = null;
         }
 
-        // Initialize DataTables
-        $(document).ready(() => {
-            this.dataTable = $('#sessions-datatable').DataTable({
-                data: tableData,
-                pageLength: 25,
-                order: [[1, 'desc']],
-                columnControl: ['order', ['orderAsc', 'orderDesc', 'search']],
-                ordering: {
-                    indicators: false,
-                    handler: false
-                }
-            });
+        // Initialize DataTables directly (DOM already ready)
+        this.dataTable = $('#sessions-datatable').DataTable({
+            data: tableData,
+            pageLength: 25,
+            order: [[1, 'desc']],
+            columnControl: ['order', ['orderAsc', 'orderDesc', 'search']],
+            ordering: {
+                indicators: false,
+                handler: false
+            }
         });
     }
 
