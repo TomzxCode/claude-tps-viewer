@@ -13,9 +13,9 @@ Five main modules in `js/`:
 
 - **cacheManager.js** - IndexedDB caching for processed file results (cache key: `filename:size:lastModified`)
 - **dataProcessor.js** - Core data pipeline: `parseJSONL()` -> `calculateTPS()` -> `aggregateByPeriod()`/`aggregateByModel()`, plus percentile calculations
-- **chartRenderer.js** - Plotly.js chart creation and updates
-- **uiController.js** - UI state management, filters, event handlers
-- **fileHandler.js** - File upload and directory selection via File System Access API
+- **chartRenderer.js** - Plotly.js chart creation and updates (supports bar, line, scatter types)
+- **uiController.js** - UI state management, filters, event handlers, keyboard shortcuts, dark mode, date filtering, chart type switching
+- **fileHandler.js** - File upload and directory selection via File System Access API, cache management, detailed progress tracking
 
 Entry point: `app.js` initializes all modules on DOMContentLoaded.
 
@@ -27,12 +27,22 @@ Entry point: `app.js` initializes all modules on DOMContentLoaded.
 5. Processed data cached in IndexedDB for faster reloads
 6. Data aggregated by time period (hour/day/dateHour/month) or model
 7. Charts render using Plotly, tables via DataTables
+8. User can filter by model, date range, and switch chart types
+9. Data can be exported to JSON, cache can be cleared
 
 ### Key Data Structures
 - Input JSONL contains `type: "user"|"assistant"`, `timestamp`, `message.usage`, `sessionId`
 - TPS data point: `{timestamp, tps, itps, otps, totalTokens, inputTokens, outputTokens, durationSeconds, model, models[]}`
 - Percentiles: `{p50, p75, p95, pMax}` - calculated for TPS, ITPS, OTPS
 - Session summary: `{id, turnCount, totalTokens, inputTokens, outputTokens, averageTPS, averageITPS, averageOTPS, timestamp, models[]}`
+
+### Keyboard Shortcuts
+- `R` - Reload data (return to file selection)
+- `E` - Export data to JSON
+- `C` - Clear cache
+- `D` - Toggle dark mode
+- `H` - Show help modal
+- `Esc` - Close modals
 
 ## Development Commands
 

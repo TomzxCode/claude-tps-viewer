@@ -7,9 +7,10 @@ A web-based viewer for visualizing Claude Code session performance metrics. Anal
 - **Directory Selection**: Select a directory containing Claude Code session files (JSONL format) using the modern File System Access API (with fallback for other browsers)
 - **Performance Metrics**:
   - Total sessions and turns analyzed
-  - TPS, ITPS (input TPS), and OTPS (output TPS) percentiles (p50, p75, p95, pMax)
+  - Average TPS, ITPS (input TPS), and OTPS (output TPS)
+  - TPS, ITPS, and OTPS percentiles (p50, p75, p95, pMax)
   - Total input, output, and combined tokens
-- **Time-Based Analysis**: Grouped bar charts showing TPS/ITPS/OTPS by:
+- **Time-Based Analysis**: Charts showing TPS/ITPS/OTPS by:
   - Per-session breakdown
   - By hour of day
   - By date
@@ -17,15 +18,31 @@ A web-based viewer for visualizing Claude Code session performance metrics. Anal
   - By day of week
   - By day of month
   - By month
+- **Chart Types**: Switch between bar, line, and scatter visualizations
 - **Model Statistics**: Per-model breakdowns including:
   - Average TPS/ITPS/OTPS with percentiles
   - Turn counts
   - Token usage (input/output/total)
   - Total duration
-- **Filtering**: Filter both charts and sessions table by model
+- **Filtering**: Filter charts and sessions table by model and date range
 - **Sortable Data Table**: DataTables-powered table with columns for session ID, date & time, turns, tokens, TPS metrics, and models
-- **Progress Indicator**: Real-time progress bar during file processing
+- **Progress Indicator**: Real-time progress bar during file processing with:
+  - Current file being processed
+  - Cache hit count
+  - Processing time and estimated remaining
+  - Cache hit rate percentage
 - **Caching**: IndexedDB-based caching for faster reprocessing of unchanged files
+- **Data Export**: Export processed data to JSON for external analysis
+- **Dark Mode**: Toggle between light and dark themes with localStorage persistence
+- **Keyboard Shortcuts**: Quick access to common functions:
+  - `R` - Reload data
+  - `E` - Export data
+  - `C` - Clear cache
+  - `D` - Toggle dark mode
+  - `H` - Show help
+  - `Esc` - Close modals
+- **Accessibility**: ARIA labels and improved keyboard navigation for screen readers
+- **Help System**: Built-in documentation explaining TPS metrics and percentiles
 
 ## Usage
 
