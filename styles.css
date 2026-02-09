@@ -85,6 +85,22 @@ body:not(.data-loaded) #file-selection {
     background: #c0392b;
 }
 
+body.dark-mode #top-controls button {
+    color: #ffffff;
+}
+
+body.dark-mode #top-controls button:hover {
+    background: #3498db;
+}
+
+body.dark-mode #top-controls button#clear-cache {
+    background: #e74c3c;
+}
+
+body.dark-mode #top-controls button#clear-cache:hover {
+    background: #c0392b;
+}
+
 /* Header */
 header {
     text-align: center;
@@ -263,6 +279,21 @@ body:not(.data-loaded) header {
     color: white;
 }
 
+body.dark-mode .time-period-tabs button {
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .time-period-tabs button:hover {
+    border-color: var(--accent-color);
+}
+
+body.dark-mode .time-period-tabs button.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
 /* Charts */
 .charts-container {
     background: var(--card-bg);
@@ -307,6 +338,21 @@ body:not(.data-loaded) header {
     color: white;
 }
 
+body.dark-mode .chart-type-buttons button {
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .chart-type-buttons button:hover {
+    border-color: var(--accent-color);
+}
+
+body.dark-mode .chart-type-buttons button.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: white;
+}
+
 /* Date Range Filter */
 .date-range-filter {
     display: flex;
@@ -327,6 +373,12 @@ body:not(.data-loaded) header {
     background: var(--card-bg);
     color: var(--text-color);
     font-size: 13px;
+}
+
+body.dark-mode .date-range-filter input[type="date"] {
+    background: #2a2a4a;
+    border-color: #4a4a6c;
+    color: var(--text-color);
 }
 
 .date-range-filter button {
@@ -382,6 +434,19 @@ body:not(.data-loaded) header {
     outline: none;
     border-color: var(--accent-color);
     box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+}
+
+body.dark-mode .model-filter-chart select,
+body.dark-mode .model-filter select {
+    background: #2a2a4a;
+    border-color: #4a4a6c;
+    color: var(--text-color);
+}
+
+body.dark-mode .model-filter-chart select:focus,
+body.dark-mode .model-filter select:focus {
+    background: #2a2a4a;
+    border-color: var(--accent-color);
 }
 
 #tps-chart {
@@ -461,12 +526,13 @@ body:not(.data-loaded) header {
 
 .modal-content p {
     margin: 0 0 20px 0;
+    color: var(--text-color);
 }
 
 .modal-content button {
     padding: 10px 20px;
     background: var(--primary-color);
-    color: white;
+    color: var(--bg-color);
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -474,6 +540,15 @@ body:not(.data-loaded) header {
 
 .modal-content button:hover {
     background: #1a252f;
+}
+
+body.dark-mode .modal-content button {
+    background: var(--primary-color);
+    color: var(--bg-color);
+}
+
+body.dark-mode .modal-content button:hover {
+    background: #3498db;
 }
 
 /* Help Modal */
@@ -505,6 +580,7 @@ body:not(.data-loaded) header {
     margin: 0 0 10px 0;
     font-size: 14px;
     line-height: 1.5;
+    color: var(--text-color);
 }
 
 .help-section ul {
@@ -516,6 +592,7 @@ body:not(.data-loaded) header {
 .help-section li {
     margin: 4px 0;
     line-height: 1.4;
+    color: var(--text-color);
 }
 
 /* Utility */
@@ -575,7 +652,7 @@ body:not(.data-loaded) header {
 
 #sessions-datatable thead th {
     background: var(--primary-color) !important;
-    color: white !important;
+    color: var(--bg-color) !important;
     font-weight: 600;
     border-bottom: none !important;
 }
@@ -589,11 +666,17 @@ body:not(.data-loaded) header {
 }
 
 #sessions-datatable code {
-    background: #f4f4f4;
+    background: var(--bg-color);
     padding: 2px 6px;
     border-radius: 3px;
     font-size: 12px;
     color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-mode #sessions-datatable code {
+    background: #2a2a4a;
+    border-color: #4a4a6c;
 }
 
 /* DataTables pagination */
@@ -608,6 +691,10 @@ body:not(.data-loaded) header {
     border: 1px solid var(--border-color) !important;
 }
 
+body.dark-mode .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background: #2a2a4a !important;
+}
+
 .dataTables_wrapper .dataTables_paginate .paginate_button.current {
     background: var(--accent-color) !important;
     color: white !important;
@@ -620,6 +707,8 @@ body:not(.data-loaded) header {
     border-radius: 4px;
     padding: 6px 12px;
     margin-left: 8px;
+    background: var(--card-bg);
+    color: var(--text-color);
 }
 
 /* DataTables length selector */
@@ -628,6 +717,8 @@ body:not(.data-loaded) header {
     border-radius: 4px;
     padding: 4px 8px;
     margin: 0 8px;
+    background: var(--card-bg);
+    color: var(--text-color);
 }
 
 /* DataTables info */
