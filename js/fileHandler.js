@@ -110,7 +110,7 @@ class FileHandler {
         }
     }
 
-    useFallbackInput() {
+    async useFallbackInput() {
         console.log('[FileHandler] useFallbackInput called');
         console.log('[FileHandler] Fallback input element:', this.fallbackInput);
         if (this.fallbackInput) {
@@ -157,9 +157,22 @@ class FileHandler {
             console.warn(`[FileHandler] Skipped ${skippedCount} file(s) with non-UUID names`);
         }
 
-        console.log('[FileHandler] Calling processAndDisplayFiles with valid files');
-        this.processAndDisplayFiles(validFiles);
+        await this.processAndDisplayFiles(validFiles);
     }
+
+    async scanDirectory(dirHandle, files) {
+        for await (const entry of dirHandle.values()) {
+            if (entry.kind === 'file' && entry.name.endsWith('.jsonl')) {
+                const file = await entry.getFile();
+                files.push(file);
+            } else if (entry.kind === 'directory') {
+                // Recursively scan subdirectories
+                await this.scanDirectory(entry, files);
+            }
+        }
+    }
+
+    async handleFallbackInput(e) {
 
     async processAndDisplayFiles(files) {
         console.log(`[FileHandler] processAndDisplayFiles called with ${files.length} file(s)`);
