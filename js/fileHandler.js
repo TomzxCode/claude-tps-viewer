@@ -178,6 +178,9 @@ class FileHandler {
         this.hideProcessingDetails();
         this.hideCurrentFile();
 
+        // Track which files we've already counted to prevent double-counting
+        const countedFiles = new Set();
+
         try {
             console.log('[FileHandler] Calling processFiles from dataProcessor');
             const data = await processFiles(files, (processed, total, currentFile, isFromCache) => {
@@ -186,9 +189,15 @@ class FileHandler {
                 this.showCurrentFile(currentFile);
 
                 if (isFromCache) {
-                    const oldCount = this.cacheHitCount;
-                    this.cacheHitCount++;
-                    console.log(`[FileHandler] Cache hit for ${currentFile}: ${oldCount} -> ${this.cacheHitCount} | isFromCache=${isFromCache}`);
+                    // Only count each file once to prevent double-counting
+                    if (!countedFiles.has(currentFile)) {
+                        countedFiles.add(currentFile);
+                        const oldCount = this.cacheHitCount;
+                        this.cacheHitCount++;
+                        console.log(`[FileHandler] Cache hit for ${currentFile}: ${oldCount} -> ${this.cacheHitCount} | isFromCache=${isFromCache}`);
+                    } else {
+                        console.log(`[FileHandler] DUPLICATE cache hit for ${currentFile}, skipping | isFromCache=${isFromCache}`);
+                    }
                 } else {
                     console.log(`[FileHandler] NOT cache hit for ${currentFile} | isFromCache=${isFromCache}`);
                 }
