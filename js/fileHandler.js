@@ -110,7 +110,7 @@ class FileHandler {
         }
     }
 
-    async useFallbackInput() {
+    useFallbackInput() {
         console.log('[FileHandler] useFallbackInput called');
         console.log('[FileHandler] Fallback input element:', this.fallbackInput);
         if (this.fallbackInput) {
@@ -157,25 +157,12 @@ class FileHandler {
             console.warn(`[FileHandler] Skipped ${skippedCount} file(s) with non-UUID names`);
         }
 
-        await this.processAndDisplayFiles(validFiles);
+        console.log('[FileHandler] Calling processFiles with valid files');
+        this.processFiles(validFiles);
     }
 
-    async scanDirectory(dirHandle, files) {
-        for await (const entry of dirHandle.values()) {
-            if (entry.kind === 'file' && entry.name.endsWith('.jsonl')) {
-                const file = await entry.getFile();
-                files.push(file);
-            } else if (entry.kind === 'directory') {
-                // Recursively scan subdirectories
-                await this.scanDirectory(entry, files);
-            }
-        }
-    }
-
-    async handleFallbackInput(e) {
-
-    async processAndDisplayFiles(files) {
-        console.log(`[FileHandler] processAndDisplayFiles called with ${files.length} file(s)`);
+    async processFiles(files) {
+        console.log(`[FileHandler] processFiles called with ${files.length} file(s)`);
         console.log(`[FileHandler] Before reset - cacheHitCount: ${this.cacheHitCount}`);
         this.cacheHitCount = 0;
         console.log(`[FileHandler] After reset - cacheHitCount: ${this.cacheHitCount}`);
@@ -191,19 +178,28 @@ class FileHandler {
         this.hideProcessingDetails();
         this.hideCurrentFile();
 
+        // Track which files we've already counted to prevent double-counting
+        const countedFiles = new Set();
+
         try {
-            console.log('[FileHandler] About to call processFiles from dataProcessor');
+            console.log('[FileHandler] Calling processFiles from dataProcessor');
             const data = await processFiles(files, (processed, total, currentFile, isFromCache) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
                 this.showCurrentFile(currentFile);
 
                 if (isFromCache) {
-                    const oldCount = this.cacheHitCount;
-                    this.cacheHitCount++;
-                    console.log(`[FileHandler] Cache hit for ${currentFile}: ${oldCount} -> ${this.cacheHitCount}`);
+                    // Only count each file once to prevent double-counting
+                    if (!countedFiles.has(currentFile)) {
+                        countedFiles.add(currentFile);
+                        const oldCount = this.cacheHitCount;
+                        this.cacheHitCount++;
+                        console.log(`[FileHandler] Cache hit for ${currentFile}: ${oldCount} -> ${this.cacheHitCount} | isFromCache=${isFromCache}`);
+                    } else {
+                        console.log(`[FileHandler] DUPLICATE cache hit for ${currentFile}, skipping | isFromCache=${isFromCache}`);
+                    }
                 } else {
-                    console.log(`[FileHandler] NOT cache hit for ${currentFile}`);
+                    console.log(`[FileHandler] NOT cache hit for ${currentFile} | isFromCache=${isFromCache}`);
                 }
 
                 const currentHitCount = this.cacheHitCount;
