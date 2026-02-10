@@ -157,12 +157,12 @@ class FileHandler {
             console.warn(`[FileHandler] Skipped ${skippedCount} file(s) with non-UUID names`);
         }
 
-        console.log('[FileHandler] Calling processDataFiles with valid files');
-        this.processFiles(validFiles);
+        console.log('[FileHandler] Calling processAndDisplayFiles with valid files');
+        this.processAndDisplayFiles(validFiles);
     }
 
-    async processFiles(files) {
-        console.log(`[FileHandler] processFiles called with ${files.length} file(s)`);
+    async processAndDisplayFiles(files) {
+        console.log(`[FileHandler] processAndDisplayFiles called with ${files.length} file(s)`);
         console.log(`[FileHandler] Before reset - cacheHitCount: ${this.cacheHitCount}`);
         this.cacheHitCount = 0;
         console.log(`[FileHandler] After reset - cacheHitCount: ${this.cacheHitCount}`);
@@ -179,8 +179,15 @@ class FileHandler {
         this.hideCurrentFile();
 
         try {
-            console.log('[FileHandler] Calling processDataFiles from dataProcessor');
-            const data = await processDataFiles(files, (processed, total, currentFile, isFromCache) => {
+            console.log('[FileHandler] About to call processFiles from dataProcessor');
+            console.log('[FileHandler] processFiles type:', typeof processFiles);
+            console.log('[FileHandler] processFiles defined:', typeof processFiles !== 'undefined');
+
+            if (typeof processFiles !== 'function') {
+                throw new Error('processFiles function not available');
+            }
+
+            const data = await processFiles(files, (processed, total, currentFile, isFromCache) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
                 this.showCurrentFile(currentFile);
