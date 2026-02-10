@@ -228,17 +228,18 @@ class FileHandler {
     }
 
     updateCacheStats(hits) {
-        // Don't overwrite this.cacheHitCount - only update the display
-        if (this.cacheStats && hits > 0) {
-            this.cacheStats.classList.remove('hidden');
-            if (this.cacheHits) {
+        // Always update the display, even when hits is 0
+        if (this.cacheStats) {
+            if (hits > 0) {
+                this.cacheStats.classList.remove('hidden');
                 console.log(`[FileHandler] updateCacheStats: Setting display to ${hits}, internal counter is ${this.cacheHitCount}`);
-                this.cacheHits.textContent = hits;
-            }
-        } else {
-            // If hits is 0, hide the cache stats
-            if (this.cacheStats) {
+            } else {
                 this.cacheStats.classList.add('hidden');
+                console.log(`[FileHandler] updateCacheStats: Setting display to 0 (hiding)`);
+            }
+            if (this.cacheHits) {
+                this.cacheHits.textContent = hits;
+                console.log(`[FileHandler] updateCacheStats: Updated display element to "${hits}"`);
             }
         }
     }
