@@ -30,6 +30,7 @@ class FileHandler {
             return;
         }
         this.selectButton.addEventListener('click', () => {
+            console.log('[FileHandler] Select directory button clicked');
             this.selectDirectory();
         });
 
@@ -49,12 +50,15 @@ class FileHandler {
     }
 
     async selectDirectory() {
+        console.log('[FileHandler] selectDirectory called');
         try {
             // Try File System Access API first (Chrome/Edge)
             if ('showDirectoryPicker' in window) {
+                console.log('[FileHandler] Using File System Access API');
                 const dirHandle = await window.showDirectoryPicker();
                 await this.readDirectory(dirHandle);
             } else {
+                console.log('[FileHandler] Using fallback file input');
                 // Fallback to traditional file input
                 this.useFallbackInput();
             }
@@ -67,15 +71,20 @@ class FileHandler {
     }
 
     async readDirectory(dirHandle) {
+        console.log('[FileHandler] readDirectory called');
         const files = [];
 
         // Recursively scan directory for JSONL files
         await this.scanDirectory(dirHandle, files);
 
+        console.log(`[FileHandler] Found ${files.length} total JSONL files`);
+
         // Filter for UUID-named files
         const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jsonl$/i;
         const validFiles = files.filter(f => uuidRegex.test(f.name));
         const skippedCount = files.length - validFiles.length;
+
+        console.log(`[FileHandler] Filtered to ${validFiles.length} valid UUID-named files`);
 
         if (validFiles.length === 0) {
             this.showError('No valid JSONL files found in directory (files must be named [uuid].jsonl)');
@@ -102,41 +111,18 @@ class FileHandler {
     }
 
     useFallbackInput() {
+        console.log('[FileHandler] useFallbackInput called');
+        console.log('[FileHandler] Fallback input element:', this.fallbackInput);
         if (this.fallbackInput) {
             // Reset the input value to allow selecting the same files again
             this.fallbackInput.value = '';
+            console.log('[FileHandler] Triggering fallback input click');
             try {
                 this.fallbackInput.click();
+                console.log('[FileHandler] Fallback input click completed');
             } catch (err) {
                 console.error('[FileHandler] Error clicking fallback input:', err);
             }
-        }
-    }
-
-    handleFallbackInput(e) {
-        const files = Array.from(e.target.files).filter(f => f.name.endsWith('.jsonl'));
-
-        if (files.length === 0) {
-            this.showError('No JSONL files selected');
-            return;
-        }
-
-        // Filter for UUID-named files
-        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.jsonl$/i;
-        const validFiles = files.filter(f => uuidRegex.test(f.name));
-        const skippedCount = files.length - validFiles.length;
-
-        if (validFiles.length === 0) {
-            this.showError('No valid JSONL files found (files must be named [uuid].jsonl)');
-            return;
-        }
-
-        if (skippedCount > 0) {
-            console.warn(`[FileHandler] Skipped ${skippedCount} file(s) with non-UUID names`);
-        }
-
-        this.processFiles(validFiles);
-    }
         } else {
             console.error('[FileHandler] Fallback input element not found!');
         }
@@ -171,11 +157,15 @@ class FileHandler {
             console.warn(`[FileHandler] Skipped ${skippedCount} file(s) with non-UUID names`);
         }
 
+        console.log('[FileHandler] Calling processFiles with valid files');
         this.processFiles(validFiles);
     }
 
     async processFiles(files) {
+        console.log(`[FileHandler] processFiles called with ${files.length} file(s)`);
+        console.log(`[FileHandler] Before reset - cacheHitCount: ${this.cacheHitCount}`);
         this.cacheHitCount = 0;
+        console.log(`[FileHandler] After reset - cacheHitCount: ${this.cacheHitCount}`);
         this.processingStartTime = Date.now();
         this.showStatus(`Processing ${files.length} files...`, 0);
 
@@ -192,6 +182,7 @@ class FileHandler {
         const countedFiles = new Set();
 
         try {
+            console.log('[FileHandler] Calling processFiles from dataProcessor');
             const data = await processFiles(files, (processed, total, currentFile, isFromCache) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
@@ -201,15 +192,27 @@ class FileHandler {
                     // Only count each file once to prevent double-counting
                     if (!countedFiles.has(currentFile)) {
                         countedFiles.add(currentFile);
+                        const oldCount = this.cacheHitCount;
                         this.cacheHitCount++;
+                        console.log(`[FileHandler] Cache hit for ${currentFile}: ${oldCount} -> ${this.cacheHitCount} | isFromCache=${isFromCache}`);
+                    } else {
+                        console.log(`[FileHandler] DUPLICATE cache hit for ${currentFile}, skipping | isFromCache=${isFromCache}`);
                     }
+                } else {
+                    console.log(`[FileHandler] NOT cache hit for ${currentFile} | isFromCache=${isFromCache}`);
                 }
 
-                this.updateCacheStats(this.cacheHitCount);
+                const currentHitCount = this.cacheHitCount;
+                console.log(`[FileHandler] File ${currentFile}: processed=${processed}, cacheHits=${currentHitCount}`);
+                console.log(`[FileHandler] Calling updateCacheStats with: ${currentHitCount}`);
+                this.updateCacheStats(currentHitCount);
+                console.log(`[FileHandler] Calling updateProcessingDetails with: processed=${processed}, cacheHits=${currentHitCount}`);
                 this.updateProcessingDetails(processed, total, this.cacheHitCount);
             }, this.cacheManager);
 
             console.log(`[FileHandler] Processing complete:`, data.summary);
+            console.log(`[FileHandler] Full data object:`, data);
+            console.log(`[FileHandler] Final cache hit count: ${this.cacheHitCount}`);
 
             this.hideStatus();
 
@@ -222,6 +225,7 @@ class FileHandler {
             }
 
             // Emit event with processed data
+            console.log(`[FileHandler] Dispatching dataLoaded event with:`, data);
             window.dispatchEvent(new CustomEvent('dataLoaded', { detail: data }));
         } catch (e) {
             console.error('[FileHandler] Error in processFiles:', e);
@@ -237,14 +241,18 @@ class FileHandler {
     }
 
     updateCacheStats(hits) {
+        // Always update the display, even when hits is 0
         if (this.cacheStats) {
             if (hits > 0) {
                 this.cacheStats.classList.remove('hidden');
+                console.log(`[FileHandler] updateCacheStats: Setting display to ${hits}, internal counter is ${this.cacheHitCount}`);
             } else {
                 this.cacheStats.classList.add('hidden');
+                console.log(`[FileHandler] updateCacheStats: Setting display to 0 (hiding)`);
             }
             if (this.cacheHits) {
                 this.cacheHits.textContent = hits;
+                console.log(`[FileHandler] updateCacheStats: Updated display element to "${hits}"`);
             }
         }
     }
@@ -297,22 +305,31 @@ class FileHandler {
     async clearCache() {
         if (!this.cacheManager) return;
         try {
+            console.log('[FileHandler] clearCache: Getting cache stats');
             const stats = await this.cacheManager.getStats();
+            console.log('[FileHandler] clearCache: Current cache stats:', stats);
             const message = `Clear cache? This will remove ${stats.entryCount} cached entries and force all files to be reprocessed.`;
 
             if (confirm(message)) {
+                console.log('[FileHandler] clearCache: User confirmed, clearing cache');
                 await this.cacheManager.clear();
+                console.log('[FileHandler] Cache cleared');
 
                 // Reset cache hit counter
                 this.cacheHitCount = 0;
+                console.log('[FileHandler] Cache hit counter reset to 0. Current value:', this.cacheHitCount);
 
                 // Hide cache stats display
                 if (this.cacheStats) {
                     this.cacheStats.classList.add('hidden');
+                    console.log('[FileHandler] Hidden cache stats display');
                 }
 
                 alert('Cache cleared successfully! All files will be reprocessed on next load.');
+                console.log('[FileHandler] Calling reloadData');
                 this.reloadData();
+            } else {
+                console.log('[FileHandler] User cancelled cache clear');
             }
         } catch (e) {
             console.error('[FileHandler] Error in clearCache:', e);

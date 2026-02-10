@@ -339,6 +339,8 @@ async function processFiles(files, onProgress, cacheManager = null) {
     let filesSkipped = 0;
     let filesFromCache = 0;
 
+    console.log(`[processFiles] Starting with ${files.length} files`);
+
     // Initialize cache manager if provided
     let cacheInitialized = false;
     if (cacheManager) {
@@ -359,6 +361,9 @@ async function processFiles(files, onProgress, cacheManager = null) {
             if (cacheInitialized) {
                 fileKey = calculateFileKey(file);
                 cachedData = await cacheManager.get(fileKey);
+                if (cachedData) {
+                    console.log(`[processFiles] ${file.name}: Cache hit for key ${fileKey}`);
+                }
             }
 
             let tpsData;
@@ -375,6 +380,7 @@ async function processFiles(files, onProgress, cacheManager = null) {
                     cachedData = null;
                 } else {
                     filesFromCache++;
+                    console.log(`[processFiles] ${file.name}: Using cached data (${tpsData.length} turns)`);
                     // Don't call onProgress here - will be called after filesProcessed++ for consistency
                 }
             }
@@ -438,7 +444,8 @@ async function processFiles(files, onProgress, cacheManager = null) {
                         await cacheManager.set(fileKey, file.name, {
                             tpsData,
                             session: sessionData
-                            });
+                        });
+                        console.log(`[processFiles] ${file.name}: Cached data (${tpsData.length} turns)`);
                     } catch (e) {
                         console.warn(`[processFiles] ${file.name}: Failed to cache data:`, e.message);
                     }
@@ -455,8 +462,10 @@ async function processFiles(files, onProgress, cacheManager = null) {
             filesProcessed++;
 
             const isCached = !!cachedData;
+            console.log(`[processFiles] ${file.name}: Incremented filesProcessed to ${filesProcessed} | isCached=${isCached}`);
 
             if (onProgress) {
+                console.log(`[processFiles] Calling onProgress for ${file.name}: processed=${filesProcessed}, isCached=${isCached}`);
                 onProgress(filesProcessed, files.length, file.name, isCached);
             }
         } catch (e) {
