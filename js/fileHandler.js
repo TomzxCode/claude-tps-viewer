@@ -111,13 +111,30 @@ class FileHandler {
     }
 
     useFallbackInput() {
+        console.log('[FileHandler] useFallbackInput called');
+        console.log('[FileHandler] Fallback input element:', this.fallbackInput);
         if (this.fallbackInput) {
-            this.fallbackInput.click();
+            // Reset the input value to allow selecting the same files again
+            this.fallbackInput.value = '';
+            console.log('[FileHandler] Triggering fallback input click');
+            try {
+                this.fallbackInput.click();
+                console.log('[FileHandler] Fallback input click completed');
+            } catch (err) {
+                console.error('[FileHandler] Error clicking fallback input:', err);
+            }
+        } else {
+            console.error('[FileHandler] Fallback input element not found!');
         }
     }
 
     handleFallbackInput(e) {
+        console.log('[FileHandler] handleFallbackInput called');
+        console.log('[FileHandler] Event target files:', e.target.files);
+        console.log('[FileHandler] Files count:', e.target.files.length);
+
         const files = Array.from(e.target.files).filter(f => f.name.endsWith('.jsonl'));
+        console.log('[FileHandler] Filtered to .jsonl files:', files.length);
 
         if (files.length === 0) {
             this.showError('No JSONL files selected');
@@ -129,6 +146,8 @@ class FileHandler {
         const validFiles = files.filter(f => uuidRegex.test(f.name));
         const skippedCount = files.length - validFiles.length;
 
+        console.log('[FileHandler] Filtered to UUID-named files:', validFiles.length);
+
         if (validFiles.length === 0) {
             this.showError('No valid JSONL files found (files must be named [uuid].jsonl)');
             return;
@@ -138,6 +157,7 @@ class FileHandler {
             console.warn(`[FileHandler] Skipped ${skippedCount} file(s) with non-UUID names`);
         }
 
+        console.log('[FileHandler] Calling processFiles with valid files');
         this.processFiles(validFiles);
     }
 
