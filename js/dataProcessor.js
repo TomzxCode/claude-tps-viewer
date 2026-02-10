@@ -382,9 +382,11 @@ async function processFiles(files, onProgress, cacheManager = null) {
                     filesFromCache++;
                     console.log(`[processFiles] ${file.name}: Using cached data (${tpsData.length} turns)`);
 
+                    console.log(`[processFiles] About to call onProgress for ${file.name}, filesProcessed will be ${filesProcessed + 1}`);
                     if (onProgress) {
                         onProgress(filesProcessed + 1, files.length, file.name, true);
                     }
+                    console.log(`[processFiles] Called onProgress for ${file.name}`);
                 }
             }
 
@@ -463,6 +465,8 @@ async function processFiles(files, onProgress, cacheManager = null) {
             totalInputTokens += sessionData.inputTokens;
             totalOutputTokens += sessionData.outputTokens;
             filesProcessed++;
+
+            console.log(`[processFiles] ${file.name}: Incremented filesProcessed to ${filesProcessed} | isFromCache=${!!cachedData}`);
 
             if (onProgress) {
                 onProgress(filesProcessed, files.length, file.name, !!cachedData);
