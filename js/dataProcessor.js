@@ -339,6 +339,8 @@ async function processFiles(files, onProgress, cacheManager = null) {
     let filesSkipped = 0;
     let filesFromCache = 0;
 
+    console.log(`[processFiles] Starting with ${files.length} files`);
+
     // Initialize cache manager if provided
     let cacheInitialized = false;
     if (cacheManager) {

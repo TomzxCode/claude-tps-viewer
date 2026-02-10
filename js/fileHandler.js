@@ -188,12 +188,16 @@ class FileHandler {
                 if (isFromCache) {
                     const oldCount = this.cacheHitCount;
                     this.cacheHitCount++;
-                    console.log(`[FileHandler] Cache hit for ${currentFile}: ${oldCount} -> ${this.cacheHitCount}`);
+                    console.log(`[FileHandler] Cache hit for ${currentFile}: ${oldCount} -> ${this.cacheHitCount} | isFromCache=${isFromCache}`);
+                } else {
+                    console.log(`[FileHandler] NOT cache hit for ${currentFile} | isFromCache=${isFromCache}`);
                 }
 
                 const currentHitCount = this.cacheHitCount;
+                console.log(`[FileHandler] File ${currentFile}: processed=${processed}, cacheHits=${currentHitCount}`);
                 console.log(`[FileHandler] Calling updateCacheStats with: ${currentHitCount}`);
                 this.updateCacheStats(currentHitCount);
+                console.log(`[FileHandler] Calling updateProcessingDetails with: processed=${processed}, cacheHits=${currentHitCount}`);
                 this.updateProcessingDetails(processed, total, this.cacheHitCount);
             }, this.cacheManager);
 
