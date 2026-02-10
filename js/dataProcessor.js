@@ -328,7 +328,7 @@ function calculatePercentiles(values) {
  * @param {CacheManager} cacheManager - Optional cache manager instance
  * @returns {Promise<Object>} Processed data
  */
-async function processFiles(files, onProgress, cacheManager = null) {
+async function processDataFiles(files, onProgress, cacheManager = null) {
     const startTime = performance.now();
     const allTPSData = [];
     const sessions = [];

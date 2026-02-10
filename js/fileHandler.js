@@ -157,7 +157,7 @@ class FileHandler {
             console.warn(`[FileHandler] Skipped ${skippedCount} file(s) with non-UUID names`);
         }
 
-        console.log('[FileHandler] Calling processFiles with valid files');
+        console.log('[FileHandler] Calling processDataFiles with valid files');
         this.processFiles(validFiles);
     }
 
@@ -179,8 +179,8 @@ class FileHandler {
         this.hideCurrentFile();
 
         try {
-            console.log('[FileHandler] Calling processFiles from dataProcessor');
-            const data = await processFiles(files, (processed, total, currentFile, isFromCache) => {
+            console.log('[FileHandler] Calling processDataFiles from dataProcessor');
+            const data = await processDataFiles(files, (processed, total, currentFile, isFromCache) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
                 this.showCurrentFile(currentFile);
