@@ -23,27 +23,68 @@ class UIController {
         this.currentData = null;
         this.dataTable = null;
         this.currentModelFilter = 'all';
+        this.dateRange = { from: null, to: null };
+        this.isInitialized = false;
 
         this.init();
     }
 
     init() {
+        console.log('[UIController] init called, isInitialized:', this.isInitialized);
+
+        // Prevent double initialization
+        if (this.isInitialized) {
+            console.warn('[UIController] Already initialized, skipping');
+            return;
+        }
+
+        this.isInitialized = true;
+
         // Listen for data loaded event
-        window.addEventListener('dataLoaded', (e) => {
+        this.handleDataLoaded = (e) => {
+            console.log('[UIController] dataLoaded event received, detail:', e.detail);
+            console.log('[UIController] detail type:', typeof e.detail);
+            console.log('[UIController] detail keys:', e.detail ? Object.keys(e.detail) : 'none');
+
             this.currentData = e.detail;
             this.showDashboard();
+        };
+        window.addEventListener('dataLoaded', this.handleDataLoaded);
+
+        // Listen for reload requested event
+        window.addEventListener('reloadRequested', () => {
+            this.reloadData();
         });
 
         // Period tab buttons
         this.periodButtons.forEach(button => {
             button.addEventListener('click', () => {
-                this.periodButtons.forEach(b => b.classList.remove('active'));
+                this.periodButtons.forEach(b => {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-selected', 'false');
+                });
                 button.classList.add('active');
+                button.setAttribute('aria-selected', 'true');
 
                 const period = button.dataset.period;
                 this.updateChart(period);
             });
         });
+
+        // Chart type buttons
+        document.querySelectorAll('.chart-type-buttons button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.chart-type-buttons button').forEach(b => b.classList.remove('active'));
+                button.classList.add('active');
+
+                const chartType = button.dataset.chartType;
+                this.updateChartForChartType(chartType);
+            });
+        });
+
+        // Date range filter
+        document.getElementById('apply-date-filter')?.addEventListener('click', () => this.applyDateFilter());
+        document.getElementById('clear-date-filter')?.addEventListener('click', () => this.clearDateFilter());
 
         // Model filter dropdowns (sync both)
         const onModelChange = (e) => {
@@ -61,16 +102,48 @@ class UIController {
         if (this.modelSelectChart) {
             this.modelSelectChart.addEventListener('change', onModelChange);
         }
+
+        // Top control buttons
+        document.getElementById('reload-data')?.addEventListener('click', () => this.reloadData());
+        document.getElementById('export-data')?.addEventListener('click', () => this.exportData());
+        document.getElementById('dark-mode-toggle')?.addEventListener('click', () => this.toggleDarkMode());
+        document.getElementById('help-button')?.addEventListener('click', () => this.showHelp());
+
+        // Close help modal
+        document.getElementById('close-help')?.addEventListener('click', () => this.hideHelp());
+
+        // Load saved dark mode preference
+        this.loadDarkModePreference();
+
+        // Global keyboard shortcuts
+        this.setupKeyboardShortcuts();
     }
 
     showDashboard() {
         if (!this.dashboard) return;
 
+        console.log('[UIController] showDashboard called');
+        console.log('[UIController] currentData:', this.currentData);
+        console.log('[UIController] summaryCards:', this.summaryCards);
+
+        if (!this.currentData) {
+            console.error('[UIController] ERROR: currentData is null or undefined!');
+            return;
+        }
+
+        if (!this.currentData.summary) {
+            console.error('[UIController] ERROR: currentData.summary is missing!');
+            return;
+        }
+
         this.dashboard.classList.remove('hidden');
+        document.getElementById('top-controls').classList.remove('hidden');
 
         // Update summary cards
         if (this.summaryCards.totalSessions) {
-            this.summaryCards.totalSessions.textContent = this.currentData.summary.totalSessions;
+            const value = this.currentData.summary.totalSessions;
+            console.log('[UIController] Setting totalSessions to:', value, 'element:', this.summaryCards.totalSessions);
+            this.summaryCards.totalSessions.textContent = value;
         }
         if (this.summaryCards.averageTPS) {
             this.summaryCards.averageTPS.textContent = this.currentData.summary.averageTPS.toFixed(2);
@@ -229,6 +302,41 @@ class UIController {
         this.updateChart(period);
     }
 
+    updateChartForChartType(chartType) {
+        const activePeriod = document.querySelector('.time-period-tabs button.active');
+        const period = activePeriod ? activePeriod.dataset.period : 'session';
+        this.updateChart(period, chartType);
+    }
+
+    updateChart(period, chartType) {
+        if (!this.currentData || !this.chartRenderer) return;
+
+        let tpsData = this.currentData.allTPSData;
+
+        // Filter by model if selected
+        if (this.currentModelFilter !== 'all') {
+            tpsData = tpsData.filter(d => d.model === this.currentModelFilter);
+        }
+
+        // Filter by date range if set
+        if (this.dateRange.from || this.dateRange.to) {
+            tpsData = tpsData.filter(d => {
+                const timestamp = d.timestamp.getTime();
+                if (this.dateRange.from && timestamp < this.dateRange.from) return false;
+                if (this.dateRange.to && timestamp > this.dateRange.to) return false;
+                return true;
+            });
+        }
+
+        // Use provided chart type or get from active button
+        if (!chartType) {
+            const activeChartType = document.querySelector('.chart-type-buttons button.active');
+            chartType = activeChartType ? activeChartType.dataset.chartType : 'bar';
+        }
+
+        this.chartRenderer.renderChart(tpsData, period, chartType);
+    }
+
     renderSessionsTable() {
         if (!this.sessionsTable) return;
 
@@ -237,6 +345,16 @@ class UIController {
         // Filter by model if selected
         if (this.currentModelFilter !== 'all') {
             sessions = sessions.filter(s => s.models && s.models.includes(this.currentModelFilter));
+        }
+
+        // Filter by date range if set
+        if (this.dateRange.from || this.dateRange.to) {
+            sessions = sessions.filter(s => {
+                const timestamp = s.timestamp.getTime();
+                if (this.dateRange.from && timestamp < this.dateRange.from) return false;
+                if (this.dateRange.to && timestamp > this.dateRange.to) return false;
+                return true;
+            });
         }
 
         // Build table data for DataTables
@@ -283,18 +401,16 @@ class UIController {
             this.dataTable = null;
         }
 
-        // Initialize DataTables
-        $(document).ready(() => {
-            this.dataTable = $('#sessions-datatable').DataTable({
-                data: tableData,
-                pageLength: 25,
-                order: [[1, 'desc']],
-                columnControl: ['order', ['orderAsc', 'orderDesc', 'search']],
-                ordering: {
-                    indicators: false,
-                    handler: false
-                }
-            });
+        // Initialize DataTables directly (DOM already ready)
+        this.dataTable = $('#sessions-datatable').DataTable({
+            data: tableData,
+            pageLength: 25,
+            order: [[1, 'desc']],
+            columnControl: ['order', ['orderAsc', 'orderDesc', 'search']],
+            ordering: {
+                indicators: false,
+                handler: false
+            }
         });
     }
 
@@ -316,5 +432,158 @@ class UIController {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    reloadData() {
+        // Hide dashboard and show file selection
+        this.dashboard.classList.add('hidden');
+        document.getElementById('top-controls').classList.add('hidden');
+        document.getElementById('file-selection').classList.remove('hidden');
+        document.body.classList.remove('data-loaded');
+        this.currentData = null;
+    }
+
+    exportData() {
+        if (!this.currentData) return;
+
+        const exportData = {
+            summary: this.currentData.summary,
+            modelStats: this.currentData.modelStats,
+            sessions: this.currentData.sessions,
+            tpsData: this.currentData.allTPSData,
+            exportedAt: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `claude-tps-export-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        const isDarkMode = document.body.classList.contains('dark-mode');
+        localStorage.setItem('darkMode', isDarkMode);
+        const toggleBtn = document.getElementById('dark-mode-toggle');
+        if (toggleBtn) {
+            toggleBtn.textContent = isDarkMode ? '☀️' : '🌙';
+        }
+    }
+
+    loadDarkModePreference() {
+        const savedMode = localStorage.getItem('darkMode');
+        if (savedMode === 'true') {
+            document.body.classList.add('dark-mode');
+            const toggleBtn = document.getElementById('dark-mode-toggle');
+            if (toggleBtn) {
+                toggleBtn.textContent = '☀️';
+            }
+        }
+    }
+
+    showHelp() {
+        const helpModal = document.getElementById('help-modal');
+        if (helpModal) {
+            helpModal.classList.remove('hidden');
+        }
+    }
+
+    hideHelp() {
+        const helpModal = document.getElementById('help-modal');
+        if (helpModal) {
+            helpModal.classList.add('hidden');
+        }
+    }
+
+    applyDateFilter() {
+        const fromDate = document.getElementById('date-from')?.value;
+        const toDate = document.getElementById('date-to')?.value;
+
+        this.dateRange.from = fromDate ? new Date(fromDate + 'T00:00:00').getTime() : null;
+        this.dateRange.to = toDate ? new Date(toDate + 'T23:59:59').getTime() : null;
+
+        const activePeriod = document.querySelector('.time-period-tabs button.active');
+        const period = activePeriod ? activePeriod.dataset.period : 'session';
+        this.updateChart(period);
+        this.renderSessionsTable();
+    }
+
+    clearDateFilter() {
+        this.dateRange = { from: null, to: null };
+        const fromDateInput = document.getElementById('date-from');
+        const toDateInput = document.getElementById('date-to');
+        if (fromDateInput) fromDateInput.value = '';
+        if (toDateInput) toDateInput.value = '';
+
+        const activePeriod = document.querySelector('.time-period-tabs button.active');
+        const period = activePeriod ? activePeriod.dataset.period : 'session';
+        this.updateChart(period);
+        this.renderSessionsTable();
+    }
+
+    setupKeyboardShortcuts() {
+        document.addEventListener('keydown', (e) => {
+            // Don't trigger if user is typing in an input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            // Don't trigger if CTRL, ALT, or META are pressed (but allow Shift)
+            if (e.ctrlKey || e.altKey || e.metaKey) {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+
+            switch (key) {
+                case 'r':
+                    if (document.getElementById('reload-data')) {
+                        e.preventDefault();
+                        this.reloadData();
+                    }
+                    break;
+                case 'e':
+                    if (document.getElementById('export-data')) {
+                        e.preventDefault();
+                        this.exportData();
+                    }
+                    break;
+                case 'c':
+                    // Only trigger clear cache if Shift is pressed (Shift+C)
+                    if (e.shiftKey && document.getElementById('clear-cache')) {
+                        e.preventDefault();
+                        window.dispatchEvent(new CustomEvent('clearCacheRequested'));
+                    }
+                    break;
+                case 'd':
+                    if (document.getElementById('dark-mode-toggle')) {
+                        e.preventDefault();
+                        this.toggleDarkMode();
+                    }
+                    break;
+                case 'h':
+                    if (document.getElementById('help-button')) {
+                        e.preventDefault();
+                        this.showHelp();
+                    }
+                    break;
+                case 'escape':
+                    this.hideHelp();
+                    document.getElementById('error-modal')?.classList.add('hidden');
+                    break;
+            }
+        });
+
+        // Listen for clear cache requested
+        window.addEventListener('clearCacheRequested', () => {
+            if (window.app && window.app.fileHandler) {
+                window.app.fileHandler.clearCache();
+            }
+        });
     }
 }

@@ -324,7 +324,7 @@ function calculatePercentiles(values) {
 /**
  * Process multiple JSONL files
  * @param {Array<File>} files - Array of JSONL files
- * @param {Function} onProgress - Progress callback
+ * @param {Function} onProgress - Progress callback (processed, total, currentFile, isFromCache)
  * @param {CacheManager} cacheManager - Optional cache manager instance
  * @returns {Promise<Object>} Processed data
  */
@@ -338,6 +338,8 @@ async function processFiles(files, onProgress, cacheManager = null) {
     let filesProcessed = 0;
     let filesSkipped = 0;
     let filesFromCache = 0;
+
+    console.log(`[processFiles] Starting with ${files.length} files`);
 
     // Initialize cache manager if provided
     let cacheInitialized = false;
@@ -359,6 +361,9 @@ async function processFiles(files, onProgress, cacheManager = null) {
             if (cacheInitialized) {
                 fileKey = calculateFileKey(file);
                 cachedData = await cacheManager.get(fileKey);
+                if (cachedData) {
+                    console.log(`[processFiles] ${file.name}: Cache hit for key ${fileKey}`);
+                }
             }
 
             let tpsData;
@@ -368,9 +373,19 @@ async function processFiles(files, onProgress, cacheManager = null) {
                 // Use cached data
                 tpsData = cachedData.tpsData;
                 sessionData = cachedData.session;
-                filesFromCache++;
-                console.log(`[processFiles] ${file.name}: Using cached data`);
-            } else {
+
+                // Validate cached data - if empty, treat as uncached
+                if (!tpsData || tpsData.length === 0 || !sessionData || sessionData.turnCount === 0) {
+                    console.warn(`[processFiles] ${file.name}: Cached data is empty or invalid, reprocessing file`);
+                    cachedData = null;
+                } else {
+                    filesFromCache++;
+                    console.log(`[processFiles] ${file.name}: Using cached data (${tpsData.length} turns)`);
+                    // Don't call onProgress here - will be called after filesProcessed++ for consistency
+                }
+            }
+
+            if (!cachedData) {
                 // Process file normally
                 const content = await file.text();
                 const messages = parseJSONL(content, file.name);
@@ -423,13 +438,14 @@ async function processFiles(files, onProgress, cacheManager = null) {
                     models: Array.from(sessionModels)
                 };
 
-                // Cache the processed data
-                if (cacheInitialized && fileKey) {
+                // Cache the processed data (only if valid)
+                if (cacheInitialized && fileKey && tpsData.length > 0 && sessionData.turnCount > 0) {
                     try {
                         await cacheManager.set(fileKey, file.name, {
                             tpsData,
                             session: sessionData
                         });
+                        console.log(`[processFiles] ${file.name}: Cached data (${tpsData.length} turns)`);
                     } catch (e) {
                         console.warn(`[processFiles] ${file.name}: Failed to cache data:`, e.message);
                     }
@@ -445,8 +461,12 @@ async function processFiles(files, onProgress, cacheManager = null) {
             totalOutputTokens += sessionData.outputTokens;
             filesProcessed++;
 
+            const isCached = !!cachedData;
+            console.log(`[processFiles] ${file.name}: Incremented filesProcessed to ${filesProcessed} | isCached=${isCached}`);
+
             if (onProgress) {
-                onProgress(filesProcessed, files.length);
+                console.log(`[processFiles] Calling onProgress for ${file.name}: processed=${filesProcessed}, isCached=${isCached}`);
+                onProgress(filesProcessed, files.length, file.name, isCached);
             }
         } catch (e) {
             console.error(`[processFiles] ${file.name}: ${e.name}: ${e.message}`);

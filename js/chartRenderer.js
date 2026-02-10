@@ -5,13 +5,17 @@ class ChartRenderer {
     constructor() {
         this.chartDiv = document.getElementById('tps-chart');
         this.currentPeriod = 'session';
+        this.currentChartType = 'bar';
     }
 
-    renderChart(data, period = 'session') {
+    renderChart(data, period = 'session', chartType = 'bar') {
         if (!this.chartDiv) {
             console.error('Chart div not found');
             return;
         }
+
+        this.currentPeriod = period;
+        this.currentChartType = chartType;
 
         const aggregatedData = aggregateByPeriod(data, period);
 
@@ -26,14 +30,19 @@ class ChartRenderer {
             x: labels,
             y: tpsValues,
             name: 'TPS',
-            type: 'bar',
-            marker: {
+            type: chartType,
+            mode: chartType === 'scatter' ? 'markers' : undefined,
+            marker: chartType === 'scatter' ? {
+                color: 'rgba(39, 174, 96, 0.7)',
+                size: 8
+            } : {
                 color: 'rgba(39, 174, 96, 0.7)',
                 line: {
                     color: 'rgba(39, 174, 96, 1)',
                     width: 1
                 }
             },
+            line: chartType === 'line' ? { width: 2 } : undefined,
             customdata: aggregatedData.map((d, i) => ({
                 itps: itpsValues[i],
                 otps: otpsValues[i],
@@ -63,14 +72,19 @@ class ChartRenderer {
             x: labels,
             y: itpsValues,
             name: 'ITPS',
-            type: 'bar',
-            marker: {
+            type: chartType,
+            mode: chartType === 'scatter' ? 'markers' : undefined,
+            marker: chartType === 'scatter' ? {
+                color: 'rgba(52, 152, 219, 0.7)',
+                size: 8
+            } : {
                 color: 'rgba(52, 152, 219, 0.7)',
                 line: {
                     color: 'rgba(52, 152, 219, 1)',
                     width: 1
                 }
             },
+            line: chartType === 'line' ? { width: 2 } : undefined,
             customdata: aggregatedData.map(d => ({
                 itpsP50: d.itpsPercentiles?.p50,
                 itpsP75: d.itpsPercentiles?.p75,
@@ -92,14 +106,19 @@ class ChartRenderer {
             x: labels,
             y: otpsValues,
             name: 'OTPS',
-            type: 'bar',
-            marker: {
+            type: chartType,
+            mode: chartType === 'scatter' ? 'markers' : undefined,
+            marker: chartType === 'scatter' ? {
+                color: 'rgba(155, 89, 182, 0.7)',
+                size: 8
+            } : {
                 color: 'rgba(155, 89, 182, 0.7)',
                 line: {
                     color: 'rgba(155, 89, 182, 1)',
                     width: 1
                 }
             },
+            line: chartType === 'line' ? { width: 2 } : undefined,
             customdata: aggregatedData.map(d => ({
                 otpsP50: d.otpsPercentiles?.p50,
                 otpsP75: d.otpsPercentiles?.p75,
@@ -133,7 +152,7 @@ class ChartRenderer {
                 },
                 zeroline: true
             },
-            barmode: 'group',
+            barmode: chartType === 'bar' ? 'group' : undefined,
             margin: {
                 l: 60,
                 r: 20,
