@@ -163,9 +163,17 @@ class FileHandler {
 
     async processFiles(files) {
         console.log(`[FileHandler] processFiles called with ${files.length} file(s)`);
+        console.log(`[FileHandler] Before reset - cacheHitCount: ${this.cacheHitCount}`);
         this.cacheHitCount = 0;
+        console.log(`[FileHandler] After reset - cacheHitCount: ${this.cacheHitCount}`);
         this.processingStartTime = Date.now();
         this.showStatus(`Processing ${files.length} files...`, 0);
+
+        // Hide cache stats initially
+        if (this.cacheStats) {
+            this.cacheStats.classList.add('hidden');
+        }
+
         this.updateCacheStats(0);
         this.hideProcessingDetails();
         this.hideCurrentFile();
@@ -183,12 +191,15 @@ class FileHandler {
                     console.log(`[FileHandler] Cache hit for ${currentFile}: ${oldCount} -> ${this.cacheHitCount}`);
                 }
 
-                this.updateCacheStats(this.cacheHitCount);
+                const currentHitCount = this.cacheHitCount;
+                console.log(`[FileHandler] Calling updateCacheStats with: ${currentHitCount}`);
+                this.updateCacheStats(currentHitCount);
                 this.updateProcessingDetails(processed, total, this.cacheHitCount);
             }, this.cacheManager);
 
             console.log(`[FileHandler] Processing complete:`, data.summary);
             console.log(`[FileHandler] Full data object:`, data);
+            console.log(`[FileHandler] Final cache hit count: ${this.cacheHitCount}`);
 
             this.hideStatus();
 
