@@ -108,6 +108,14 @@ class CacheManager {
             };
             request.onsuccess = () => {
                 console.log('[CacheManager] clear successful');
+
+                // Close database connection to ensure clean slate
+                if (this.db) {
+                    this.db.close();
+                    this.db = null;
+                    console.log('[CacheManager] Database closed after clear');
+                }
+
                 resolve();
             };
         });

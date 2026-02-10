@@ -359,6 +359,9 @@ async function processFiles(files, onProgress, cacheManager = null) {
             if (cacheInitialized) {
                 fileKey = calculateFileKey(file);
                 cachedData = await cacheManager.get(fileKey);
+                if (cachedData) {
+                    console.log(`[processFiles] ${file.name}: Cache hit for key ${fileKey}`);
+                }
             }
 
             let tpsData;

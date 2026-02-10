@@ -276,6 +276,11 @@ class FileHandler {
             if (confirm(message)) {
                 await this.cacheManager.clear();
                 console.log('[FileHandler] Cache cleared');
+
+                // Reset cache hit counter
+                this.cacheHitCount = 0;
+                console.log('[FileHandler] Cache hit counter reset to 0');
+
                 alert('Cache cleared successfully! All files will be reprocessed on next load.');
                 this.reloadData();
             }
