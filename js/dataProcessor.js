@@ -382,15 +382,29 @@ async function processFiles(files, onProgress, cacheManager = null) {
                     filesFromCache++;
                     console.log(`[processFiles] ${file.name}: Using cached data (${tpsData.length} turns)`);
 
-                    console.log(`[processFiles] About to call onProgress for ${file.name}, filesProcessed will be ${filesProcessed + 1}`);
+                    // Add data to collections (same as for non-cached files)
+                    allTPSData.push(...tpsData);
+                    sessions.push(sessionData);
+
+                    // Get session totals
+                    totalTokens += sessionData.totalTokens;
+                    totalInputTokens += sessionData.inputTokens;
+                    totalOutputTokens += sessionData.outputTokens;
+                    filesProcessed++;
+
+                    // Call progress callback ONCE (after incrementing filesProcessed)
+                    console.log(`[processFiles] ${file.name}: Calling onProgress from cache path, processed=${filesProcessed}, isFromCache=true`);
                     if (onProgress) {
-                        onProgress(filesProcessed + 1, files.length, file.name, true);
+                        onProgress(filesProcessed, files.length, file.name, true);
                     }
-                    console.log(`[processFiles] Called onProgress for ${file.name}`);
+                    console.log(`[processFiles] ${file.name}: onProgress called from cache path`);
+
+                    // Skip the rest of the loop - we've already handled everything
+                    continue;
                 }
             }
 
-            if (!cachedData) {
+            // Continue with non-cached file processing
                 // Process file normally
                 const content = await file.text();
                 const messages = parseJSONL(content, file.name);
