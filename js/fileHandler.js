@@ -180,13 +180,6 @@ class FileHandler {
 
         try {
             console.log('[FileHandler] About to call processFiles from dataProcessor');
-            console.log('[FileHandler] processFiles type:', typeof processFiles);
-            console.log('[FileHandler] processFiles defined:', typeof processFiles !== 'undefined');
-
-            if (typeof processFiles !== 'function') {
-                throw new Error('processFiles function not available');
-            }
-
             const data = await processFiles(files, (processed, total, currentFile, isFromCache) => {
                 const percentage = (processed / total) * 100;
                 this.showStatus(`Processing ${processed}/${total} files...`, percentage);
