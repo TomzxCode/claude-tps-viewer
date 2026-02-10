@@ -178,7 +178,9 @@ class FileHandler {
                 this.showCurrentFile(currentFile);
 
                 if (isFromCache) {
+                    const oldCount = this.cacheHitCount;
                     this.cacheHitCount++;
+                    console.log(`[FileHandler] Cache hit for ${currentFile}: ${oldCount} -> ${this.cacheHitCount}`);
                 }
 
                 this.updateCacheStats(this.cacheHitCount);
@@ -215,10 +217,18 @@ class FileHandler {
     }
 
     updateCacheStats(hits) {
-        this.cacheHitCount = hits;
+        // Don't overwrite this.cacheHitCount - only update the display
         if (this.cacheStats && hits > 0) {
             this.cacheStats.classList.remove('hidden');
-            if (this.cacheHits) this.cacheHits.textContent = hits;
+            if (this.cacheHits) {
+                console.log(`[FileHandler] updateCacheStats: Setting display to ${hits}, internal counter is ${this.cacheHitCount}`);
+                this.cacheHits.textContent = hits;
+            }
+        } else {
+            // If hits is 0, hide the cache stats
+            if (this.cacheStats) {
+                this.cacheStats.classList.add('hidden');
+            }
         }
     }
 
@@ -270,21 +280,34 @@ class FileHandler {
     async clearCache() {
         if (!this.cacheManager) return;
         try {
+            console.log('[FileHandler] clearCache: Getting cache stats');
             const stats = await this.cacheManager.getStats();
+            console.log('[FileHandler] clearCache: Current cache stats:', stats);
             const message = `Clear cache? This will remove ${stats.entryCount} cached entries and force all files to be reprocessed.`;
 
             if (confirm(message)) {
+                console.log('[FileHandler] clearCache: User confirmed, clearing cache');
                 await this.cacheManager.clear();
                 console.log('[FileHandler] Cache cleared');
 
                 // Reset cache hit counter
                 this.cacheHitCount = 0;
-                console.log('[FileHandler] Cache hit counter reset to 0');
+                console.log('[FileHandler] Cache hit counter reset to 0. Current value:', this.cacheHitCount);
+
+                // Hide cache stats display
+                if (this.cacheStats) {
+                    this.cacheStats.classList.add('hidden');
+                    console.log('[FileHandler] Hidden cache stats display');
+                }
 
                 alert('Cache cleared successfully! All files will be reprocessed on next load.');
+                console.log('[FileHandler] Calling reloadData');
                 this.reloadData();
+            } else {
+                console.log('[FileHandler] User cancelled cache clear');
             }
         } catch (e) {
+            console.error('[FileHandler] Error in clearCache:', e);
             this.showError(`Failed to clear cache: ${e.message}`);
         }
     }
