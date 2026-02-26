@@ -4,12 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const chartRenderer = new ChartRenderer();
     const uiController = new UIController(chartRenderer);
     const fileHandler = new FileHandler(cacheManager);
+    const sqliteHandler = new SQLiteHandler(cacheManager);
 
-    // Expose for debugging
     window.app = {
         cacheManager,
         chartRenderer,
         uiController,
-        fileHandler
+        fileHandler,
+        sqliteHandler
     };
 });

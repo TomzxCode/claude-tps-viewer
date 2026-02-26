@@ -4,22 +4,24 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-A single-page web application that visualizes Claude Code's tokens per second (TPS) performance from JSONL log files. The app runs entirely client-side with vanilla JavaScript, no build step required. Documentation is served via MkDocs.
+A single-page web application that visualizes Claude Code's tokens per second (TPS) performance from JSONL log files or OpenCode SQLite databases. The app runs entirely client-side with vanilla JavaScript, no build step required. Documentation is served via MkDocs.
 
 ## Architecture
 
 ### Frontend (JavaScript)
-Five main modules in `js/`:
+Six main modules in `js/`:
 
 - **cacheManager.js** - IndexedDB caching for processed file results (cache key: `filename:size:lastModified`)
 - **dataProcessor.js** - Core data pipeline: `parseJSONL()` -> `calculateTPS()` -> `aggregateByPeriod()`/`aggregateByModel()`, plus percentile calculations
 - **chartRenderer.js** - Plotly.js chart creation and updates (supports bar, line, scatter types)
 - **uiController.js** - UI state management, filters, event handlers, keyboard shortcuts, dark mode, date filtering, chart type switching
 - **fileHandler.js** - File upload and directory selection via File System Access API, cache management, detailed progress tracking
+- **sqliteHandler.js** - OpenCode SQLite database parsing using sql.js, extracts TPS metrics from opencode.db files
 
 Entry point: `app.js` initializes all modules on DOMContentLoaded.
 
 ### Data Flow
+#### JSONL Files
 1. User selects JSONL files (must match UUID pattern: `[uuid].jsonl`)
 2. `processFiles()` checks cache for each file (using cacheManager)
 3. For uncached files: parses JSONL, extracts user/assistant message pairs
@@ -30,6 +32,14 @@ Entry point: `app.js` initializes all modules on DOMContentLoaded.
 8. User can filter by model, date range, and switch chart types
 9. Data can be exported to JSON, cache can be cleared
 
+#### SQLite Database (opencode.db)
+1. User selects an opencode.db file
+2. `sqliteHandler.js` loads sql.js WebAssembly library
+3. Database queried for assistant messages with token metrics
+4. TPS calculated from output tokens and response duration
+5. Data transformed to match the standard TPS data format
+6. Same aggregation and visualization pipeline as JSONL data
+
 ### Key Data Structures
 - Input JSONL contains `type: "user"|"assistant"`, `timestamp`, `message.usage`, `sessionId`
 - TPS data point: `{timestamp, tps, itps, otps, totalTokens, inputTokens, outputTokens, durationSeconds, model, models[]}`
@@ -39,7 +49,7 @@ Entry point: `app.js` initializes all modules on DOMContentLoaded.
 ### Keyboard Shortcuts
 - `R` - Reload data (return to file selection)
 - `E` - Export data to JSON
-- `C` - Clear cache
+- `Shift+C` - Clear cache
 - `D` - Toggle dark mode
 - `H` - Show help modal
 - `Esc` - Close modals
@@ -65,6 +75,7 @@ uv add <package>        # Add dependency
 - **Plotly.js** - Chart visualization (CDN)
 - **DataTables.net** - Interactive tables (CDN)
 - **jQuery** - DOM manipulation (CDN)
+- **sql.js** - SQLite database parsing via WebAssembly (CDN)
 - **MkDocs Material** - Documentation theme
 
 ## Rules

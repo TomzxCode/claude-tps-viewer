@@ -221,6 +221,43 @@ body:not(.data-loaded) header {
     background: #229954;
 }
 
+.file-selection-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.or-divider {
+    color: #7f8c8d;
+    font-size: 14px;
+    font-style: italic;
+}
+
+#select-sqlite {
+    padding: 12px 30px;
+    font-size: 16px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+#select-sqlite:hover {
+    background: #2980b9;
+}
+
+body.dark-mode #select-sqlite {
+    background: #2980b9;
+}
+
+body.dark-mode #select-sqlite:hover {
+    background: #3498db;
+}
+
 /* Status Bar */
 #status-bar {
     margin-top: 20px;

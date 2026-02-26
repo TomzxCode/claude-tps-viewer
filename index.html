@@ -12,6 +12,7 @@
     <script src="https://cdn.plot.ly/plotly-3.3.0.min.js"></script>
     <script src="https://cdn.datatables.net/2.3.6/js/dataTables.js"></script>
     <script src="https://cdn.datatables.net/columncontrol/1.2.0/js/dataTables.columnControl.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.12.0/sql-wasm.js"></script>
 </head>
 <body>
     <div class="container">
@@ -21,7 +22,11 @@
         </header>
 
         <section id="file-selection" role="region" aria-label="File Selection">
-            <button id="select-directory" aria-label="Select directory containing JSONL session files">Select Directory</button>
+            <div class="file-selection-buttons">
+                <button id="select-directory" aria-label="Select directory containing JSONL session files">Select JSONL Directory</button>
+                <span class="or-divider">or</span>
+                <button id="select-sqlite" aria-label="Select OpenCode SQLite database file">Select opencode.db</button>
+            </div>
             <input type="file" id="file-input" webkitdirectory directory multiple aria-label="File input for directory selection" style="display:none">
             <div id="status-bar" class="hidden">
                 <span id="status-text">Loading...</span>
@@ -218,6 +223,7 @@
     <script src="js/cacheManager.js"></script>
     <script src="js/dataProcessor.js"></script>
     <script src="js/fileHandler.js"></script>
+    <script src="js/sqliteHandler.js"></script>
     <script src="js/chartRenderer.js"></script>
     <script src="js/uiController.js"></script>
     <script src="app.js"></script>
