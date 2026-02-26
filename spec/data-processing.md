@@ -2,7 +2,7 @@
 
 ## Overview
 
-The data processing module is responsible for calculating tokens per second (TPS) metrics from parsed message data, aggregating results by various dimensions, computing percentile distributions, and generating summary statistics. It also supports caching via IndexedDB for faster reprocessing.
+The data processing module is responsible for calculating tokens per second (TPS) metrics from parsed message data (JSONL) or extracted metrics from SQLite databases, aggregating results by various dimensions, computing percentile distributions, and generating summary statistics. It also supports caching via IndexedDB for faster reprocessing.
 
 ## Requirements
 

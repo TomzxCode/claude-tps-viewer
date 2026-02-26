@@ -2,22 +2,27 @@
 
 ## Getting Started
 
-Claude TPS Viewer requires no installation or build process. Simply open `index.html` in a modern web browser.
+Tokens Per Second Viewer requires no installation or build process. Simply open `index.html` in a modern web browser.
 
 ## Loading Session Data
 
-### Step 1: Select Directory
+### Step 1: Choose Data Source
 
-Click the **Select Directory** button to open the directory picker. Navigate to the folder containing your Claude Code session files.
+Choose your data source:
 
-### Step 2: File Detection
+#### For Claude Code (JSONL Files)
 
-The viewer automatically detects and processes valid session files. Files must:
+1. Click **Select JSONL Directory** button to open the directory picker
+2. Navigate to the folder containing your Claude Code session files
+3. Files must have a `.jsonl` extension and be named with a UUID pattern
 
-1. Have a `.jsonl` extension
-2. Be named with a UUID pattern (e.g., `12345678-1234-1234-1234-123456789abc.jsonl`)
+#### For OpenCode (SQLite Database)
 
-### Step 3: View Dashboard
+1. Click **Select opencode.db** button to open the file picker
+2. Select your `opencode.db` file
+3. Metrics will be extracted automatically from the database
+
+### Step 2: View Dashboard
 
 Once processed, the dashboard displays with:
 
@@ -54,7 +59,7 @@ Switch between different time aggregations:
 
 ### Model Filter
 
-Filter charts and tables by specific Claude models using the dropdown selector.
+Filter charts and tables by specific models using the dropdown selector.
 
 ### Charts
 

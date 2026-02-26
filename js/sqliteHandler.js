@@ -110,6 +110,7 @@ class SQLiteHandler {
     extractMetrics(db, filename) {
         const query = `
             SELECT 
+                session_id,
                 json_extract(data, '$.modelID') as model_id,
                 json_extract(data, '$.providerID') as provider,
                 json_extract(data, '$.tokens.input') as input_tokens,
@@ -141,7 +142,7 @@ class SQLiteHandler {
         for (const row of results) {
             const timestamp = new Date(row.time_created);
             const model = row.model_id || 'unknown';
-            const sessionId = `opencode-${timestamp.toISOString().split('T')[0]}`;
+            const sessionId = row.session_id;
             const inputTokens = row.input_tokens || 0;
             const outputTokens = row.output_tokens || 0;
             const durationSeconds = row.duration_sec || 0;

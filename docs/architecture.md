@@ -2,7 +2,7 @@
 
 ## Overview
 
-Claude TPS Viewer is a client-side only application built with vanilla JavaScript. No build process, server, or API keys required.
+Tokens Per Second Viewer is a client-side only application built with vanilla JavaScript. No build process, server, or API keys required.
 
 ## Technology Stack
 
@@ -10,6 +10,7 @@ Claude TPS Viewer is a client-side only application built with vanilla JavaScrip
 - **Charts**: Plotly.js (CDN)
 - **Tables**: DataTables.net (CDN)
 - **DOM**: jQuery (CDN)
+- **SQLite**: sql.js WebAssembly (CDN)
 - **Caching**: IndexedDB (browser native)
 - **Styling**: Custom CSS
 - **Docs**: MkDocs with Material theme
@@ -21,6 +22,7 @@ js/
 ├── cacheManager.js    # IndexedDB caching for processed files
 ├── dataProcessor.js   # Data parsing and TPS calculation with percentiles
 ├── fileHandler.js     # File input and directory selection
+├── sqliteHandler.js   # SQLite database parsing
 ├── chartRenderer.js   # Plotly chart creation
 └── uiController.js    # UI state and event handling
 
@@ -29,8 +31,9 @@ index.html             # Main HTML structure
 styles.css             # Styling
 ```
 
-## Data Flow
+### Data Flow
 
+#### Claude Code (JSONL Files)
 ```
 ┌─────────────────┐
 │  File Selection │
@@ -58,6 +61,36 @@ styles.css             # Styling
 │  - CalculateTPS │
 │  - Aggregate    │
 │  - Percentiles  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│uiController.js  │
+│  - Update state │
+│  - Populate UI  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│chartRenderer.js │
+│  - Create plots │
+│  - Create table │
+└─────────────────┘
+```
+
+#### OpenCode (SQLite Database)
+```
+┌─────────────────┐
+│  SQLite Select  │
+│  (user action)  │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│sqliteHandler.js │
+│  - Load DB     │
+│  - Query data  │
+│  - CalculateTPS │
 └────────┬────────┘
          │
          ▼
@@ -169,6 +202,21 @@ Handles file input via File System Access API.
 | `readDirectory(dirHandle)` | Recursively scan for .jsonl files |
 | `processFiles(files)` | Process files with caching |
 
+### sqliteHandler.js
+
+Handles SQLite database parsing using sql.js.
+
+**Class:** `SQLiteHandler`
+
+**Methods:**
+
+| Method | Purpose |
+|----------|---------|
+| `ensureSqlJsReady()` | Initialize sql.js WebAssembly library |
+| `selectSQLiteFile()` | Trigger file picker for .db files |
+| `processSQLiteFile(file)` | Parse database and extract metrics |
+| `extractMetrics(db, filename)` | Query database and compute TPS metrics |
+
 ### chartRenderer.js
 
 Creates Plotly charts and DataTables.
@@ -222,6 +270,13 @@ Manages UI state and event listeners.
 - Provides distribution insights beyond averages
 - Calculated at turn level, aggregated to periods
 - Displayed in summary cards, model stats, and chart hover
+
+### SQLite Database Support
+
+- Direct database parsing using sql.js WebAssembly
+- Queries assistant messages with token metrics
+- Session IDs come from database's `session_id` column
+- Same aggregation and visualization pipeline as JSONL data
 
 ### File System Access API
 

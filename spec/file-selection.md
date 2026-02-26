@@ -2,7 +2,7 @@
 
 ## Overview
 
-The file selection module is responsible for allowing users to select directories or files containing Claude Code session logs, using the File System Access API when available or falling back to traditional file input. The module integrates with CacheManager for efficient reprocessing of unchanged files.
+The file selection module is responsible for allowing users to select directories or files containing Claude Code session logs (JSONL format) or SQLite database files from OpenCode, using the File System Access API when available or falling back to traditional file input. The module integrates with CacheManager for efficient reprocessing of unchanged files.
 
 ## Requirements
 
